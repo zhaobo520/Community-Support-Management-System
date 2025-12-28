@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.dao.VolunteerScheduleMapper">
+
+    <resultMap id="BaseResultMap" type="com.community.domain.VolunteerSchedule">
+        <id column="id" property="id"/>
+        <result column="volunteer_id" property="volunteerId"/>
+        <result column="day_of_week" property="dayOfWeek"/>
+        <result column="time_slot" property="timeSlot"/>
+        <result column="is_available" property="isAvailable"/>
+        <result column="assign_source" property="assignSource"/>
+        <result column="confirm_status" property="confirmStatus"/>
+        <result column="reject_reason" property="rejectReason"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="volunteerName" property="volunteerName"/>
+    </resultMap>
+
+    <select id="findByVolunteerId" resultMap="BaseResultMap">
+        SELECT * FROM volunteer_schedule
+        WHERE volunteer_id = #{volunteerId}
+        ORDER BY day_of_week, 
+        CASE time_slot
+            WHEN 'MORNING' THEN 1
+            WHEN 'AFTERNOON' THEN 2
+            WHEN 'EVENING' THEN 3
+        END
+    </select>
+
+    <select id="findOne" resultMap="BaseResultMap">
+        SELECT * FROM volunteer_schedule
+        WHERE volunteer_id = #{volunteerId}
+        AND day_of_week = #{dayOfWeek}
+        AND time_slot = #{timeSlot}
+    </select>
+
+    <select id="findAllAvailableWithVolunteer" resultMap="BaseResultMap">
+        SELECT 
+            vs.*,
+            u.full_name as volunteerName
+        FROM volunteer_schedule vs
+        INNER JOIN sys_user u ON vs.volunteer_id = u.id
+        WHERE vs.is_available = 1
+        AND vs.confirm_status IN ('CONFIRMED', 'PENDING')
+        AND u.role_type = 'VOLUNTEER'
+        ORDER BY vs.day_of_week, vs.time_slot
+    </select>
+
+    <insert id="insert" parameterType="com.community.domain.VolunteerSchedule" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO volunteer_schedule (volunteer_id, day_of_week, time_slot, is_available, assign_source, confirm_status, reject_reason)
+        VALUES (#{volunteerId}, #{dayOfWeek}, #{timeSlot}, #{isAvailable}, #{assignSource}, #{confirmStatus}, #{rejectReason})
+    </insert>
+
+    <update id="update" parameterType="com.community.domain.VolunteerSchedule">
+        UPDATE volunteer_schedule
+        SET is_available = #{isAvailable},
+            assign_source = #{assignSource},
+            confirm_status = #{confirmStatus},
+            reject_reason = #{rejectReason}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM volunteer_schedule
+        WHERE volunteer_id = #{volunteerId}
+        AND day_of_week = #{dayOfWeek}
+        AND time_slot = #{timeSlot}
+    </delete>
+
+    <select id="findAvailableByTime" resultMap="BaseResultMap">
+        SELECT 
+            vs.*,
+            u.full_name as volunteerName
+        FROM volunteer_schedule vs
+        INNER JOIN sys_user u ON vs.volunteer_id = u.id
+        WHERE vs.day_of_week = #{dayOfWeek}
+        AND vs.time_slot = #{timeSlot}
+        AND vs.is_available = 1
+        AND vs.confirm_status IN ('CONFIRMED', 'PENDING')
+        AND u.role_type = 'VOLUNTEER'
+    </select>
+
+</mapper>

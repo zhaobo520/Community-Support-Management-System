@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.dao.DemandMapper">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="com.community.domain.Demand">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="target_id" property="targetId"/>
+        <result column="family_user_id" property="familyUserId"/>
+        <result column="demand_type" property="demandType"/>
+        <result column="urgency" property="urgency"/>
+        <result column="required_skill" property="requiredSkill"/>
+        <result column="time_requirement" property="timeRequirement"/>
+        <result column="expected_start_time" property="expectedStartTime"/>
+        <result column="expected_end_time" property="expectedEndTime"/>
+        <result column="description" property="description"/>
+        <result column="service_address" property="serviceAddress"/>
+        <result column="contact_person" property="contactPerson"/>
+        <result column="contact_phone" property="contactPhone"/>
+        <result column="status" property="status"/>
+        <result column="reviewer_id" property="reviewerId"/>
+        <result column="review_time" property="reviewTime"/>
+        <result column="review_comment" property="reviewComment"/>
+        <result column="task_id" property="taskId"/>
+        <result column="attachment_url" property="attachmentUrl"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <!-- 带关联信息的结果映射 -->
+    <resultMap id="DemandWithRelationsMap" type="com.community.domain.Demand" extends="BaseResultMap">
+        <association property="familyUser" javaType="com.community.domain.User">
+            <id column="fu_id" property="id"/>
+            <result column="fu_username" property="username"/>
+            <result column="fu_full_name" property="fullName"/>
+            <result column="fu_phone" property="phone"/>
+            <result column="fu_email" property="email"/>
+        </association>
+        <association property="reviewer" javaType="com.community.domain.User">
+            <id column="rv_id" property="id"/>
+            <result column="rv_username" property="username"/>
+            <result column="rv_full_name" property="fullName"/>
+        </association>
+        <association property="target" javaType="com.community.domain.HelpTarget">
+            <id column="ht_id" property="id"/>
+            <result column="ht_name" property="name"/>
+            <result column="ht_archive_no" property="archiveNo"/>
+            <result column="ht_family_address" property="familyAddress"/>
+        </association>
+    </resultMap>
+
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, title, target_id, family_user_id, demand_type, urgency, required_skill,
+        time_requirement, expected_start_time, expected_end_time, description,
+        service_address, contact_person, contact_phone, status, reviewer_id,
+        review_time, review_comment, task_id, attachment_url, created_at, updated_at
+    </sql>
+
+    <!-- 带关联的列 -->
+    <sql id="Columns_With_Relations">
+        d.id, d.title, d.target_id, d.family_user_id, d.demand_type, d.urgency,
+        d.required_skill, d.time_requirement, d.expected_start_time, d.expected_end_time,
+        d.description, d.service_address, d.contact_person, d.contact_phone,
+        d.status, d.reviewer_id, d.review_time, d.review_comment, d.task_id,
+        d.attachment_url, d.created_at, d.updated_at,
+        fu.id as fu_id, fu.username as fu_username, fu.full_name as fu_full_name,
+        fu.phone as fu_phone, fu.email as fu_email,
+        rv.id as rv_id, rv.username as rv_username, rv.full_name as rv_full_name,
+        ht.id as ht_id, ht.name as ht_name, ht.archive_no as ht_archive_no,
+        ht.family_address as ht_family_address
+    </sql>
+
+    <!-- 插入需求 -->
+    <insert id="insert" parameterType="com.community.domain.Demand" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO demand (
+            title, target_id, family_user_id, demand_type, urgency, required_skill,
+            time_requirement, expected_start_time, expected_end_time, description,
+            service_address, contact_person, contact_phone, status, attachment_url
+        ) VALUES (
+            #{title}, #{targetId}, #{familyUserId}, #{demandType}, #{urgency}, #{requiredSkill},
+            #{timeRequirement}, #{expectedStartTime}, #{expectedEndTime}, #{description},
+            #{serviceAddress}, #{contactPerson}, #{contactPhone}, #{status}, #{attachmentUrl}
+        )
+    </insert>
+
+    <!-- 更新需求 -->
+    <update id="update" parameterType="com.community.domain.Demand">
+        UPDATE demand
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="targetId != null">target_id = #{targetId},</if>
+            <if test="demandType != null">demand_type = #{demandType},</if>
+            <if test="urgency != null">urgency = #{urgency},</if>
+            <if test="requiredSkill != null">required_skill = #{requiredSkill},</if>
+            <if test="timeRequirement != null">time_requirement = #{timeRequirement},</if>
+            <if test="expectedStartTime != null">expected_start_time = #{expectedStartTime},</if>
+            <if test="expectedEndTime != null">expected_end_time = #{expectedEndTime},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="serviceAddress != null">service_address = #{serviceAddress},</if>
+            <if test="contactPerson != null">contact_person = #{contactPerson},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="attachmentUrl != null">attachment_url = #{attachmentUrl},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据ID查询（带关联） -->
+    <select id="findById" resultMap="DemandWithRelationsMap">
+        SELECT <include refid="Columns_With_Relations"/>
+        FROM demand d
+        LEFT JOIN sys_user fu ON d.family_user_id = fu.id
+        LEFT JOIN sys_user rv ON d.reviewer_id = rv.id
+        LEFT JOIN help_target ht ON d.target_id = ht.id
+        WHERE d.id = #{id}
+    </select>
+
+    <!-- 根据ID查询（不带关联） -->
+    <select id="findByIdSimple" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM demand
+        WHERE id = #{id}
+    </select>
+
+    <!-- 查询所有需求 -->
+    <select id="findAll" resultMap="DemandWithRelationsMap">
+        SELECT <include refid="Columns_With_Relations"/>
+        FROM demand d
+        LEFT JOIN sys_user fu ON d.family_user_id = fu.id
+        LEFT JOIN sys_user rv ON d.reviewer_id = rv.id
+        LEFT JOIN help_target ht ON d.target_id = ht.id
+        ORDER BY d.created_at DESC
+    </select>
+
+    <!-- 根据家属用户ID查询 -->
+    <select id="findByFamilyUserId" resultMap="DemandWithRelationsMap">
+        SELECT <include refid="Columns_With_Relations"/>
+        FROM demand d
+        LEFT JOIN sys_user fu ON d.family_user_id = fu.id
+        LEFT JOIN sys_user rv ON d.reviewer_id = rv.id
+        LEFT JOIN help_target ht ON d.target_id = ht.id
+        WHERE d.family_user_id = #{familyUserId}
+        ORDER BY d.created_at DESC
+    </select>
+
+    <!-- 根据状态查询 -->
+    <select id="findByStatus" resultMap="DemandWithRelationsMap">
+        SELECT <include refid="Columns_With_Relations"/>
+        FROM demand d
+        LEFT JOIN sys_user fu ON d.family_user_id = fu.id
+        LEFT JOIN sys_user rv ON d.reviewer_id = rv.id
+        LEFT JOIN help_target ht ON d.target_id = ht.id
+        WHERE d.status = #{status}
+        ORDER BY d.created_at DESC
+    </select>
+
+    <!-- 查询待审核的需求 -->
+    <select id="findPendingDemands" resultMap="DemandWithRelationsMap">
+        SELECT <include refid="Columns_With_Relations"/>
+        FROM demand d
+        LEFT JOIN sys_user fu ON d.family_user_id = fu.id
+        LEFT JOIN sys_user rv ON d.reviewer_id = rv.id
+        LEFT JOIN help_target ht ON d.target_id = ht.id
+        WHERE d.status = 'PENDING'
+        ORDER BY d.urgency DESC, d.created_at ASC
+    </select>
+
+    <!-- 查询已通过的需求 -->
+    <select id="findApprovedDemands" resultMap="DemandWithRelationsMap">
+        SELECT <include refid="Columns_With_Relations"/>
+        FROM demand d
+        LEFT JOIN sys_user fu ON d.family_user_id = fu.id
+        LEFT JOIN sys_user rv ON d.reviewer_id = rv.id
+        LEFT JOIN help_target ht ON d.target_id = ht.id
+        WHERE d.status = 'APPROVED'
+        ORDER BY d.urgency DESC, d.expected_start_time ASC
+    </select>
+
+    <!-- 统计家属的需求数量 -->
+    <select id="countByFamilyUserId" resultType="int">
+        SELECT COUNT(*) FROM demand WHERE family_user_id = #{familyUserId}
+    </select>
+
+    <!-- 统计各状态的需求数量 -->
+    <select id="countByStatus" resultType="int">
+        SELECT COUNT(*) FROM demand WHERE status = #{status}
+    </select>
+
+    <!-- 删除需求 -->
+    <delete id="delete">
+        DELETE FROM demand WHERE id = #{id}
+    </delete>
+
+    <!-- 审核需求 -->
+    <update id="review">
+        UPDATE demand
+        SET status = #{status},
+            reviewer_id = #{reviewerId},
+            review_time = NOW(),
+            review_comment = #{reviewComment}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 关联任务 -->
+    <update id="linkTask">
+        UPDATE demand
+        SET task_id = #{taskId},
+            status = 'MATCHED'
+        WHERE id = #{id}
+    </update>
+
+    <!-- 按需求类型统计数量 -->
+    <select id="countByDemandType" resultType="map">
+        SELECT demand_type AS type, COUNT(*) AS count
+        FROM demand
+        GROUP BY demand_type
+    </select>
+
+    <!-- 统计总需求数 -->
+    <select id="countTotal" resultType="long">
+        SELECT COUNT(*) FROM demand
+    </select>
+
+    <!-- 统计指定时间范围内的需求数（按状态） -->
+    <select id="countByStatusWithDateRange" resultType="int">
+        SELECT COUNT(*) FROM demand 
+        WHERE status = #{status}
+        <if test="startDate != null">
+            AND created_at >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND created_at &lt;= #{endDate}
+        </if>
+    </select>
+
+    <!-- 统计指定时间范围内的总需求数 -->
+    <select id="countTotalWithDateRange" resultType="long">
+        SELECT COUNT(*) FROM demand
+        WHERE 1=1
+        <if test="startDate != null">
+            AND created_at >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND created_at &lt;= #{endDate}
+        </if>
+    </select>
+
+</mapper>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.community.dao.SystemConfigMapper">
+
+    <resultMap id="SystemConfigResultMap" type="com.community.domain.SystemConfig">
+        <id property="id" column="id"/>
+        <result property="configKey" column="config_key"/>
+        <result property="configValue" column="config_value"/>
+        <result property="configType" column="config_type"/>
+        <result property="category" column="category"/>
+        <result property="displayName" column="display_name"/>
+        <result property="description" column="description"/>
+        <result property="isPublic" column="is_public"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="updatedBy" column="updated_by"/>
+    </resultMap>
+
+    <!-- 查询所有配置 -->
+    <select id="findAll" resultMap="SystemConfigResultMap">
+        SELECT * FROM system_config
+        ORDER BY category, sort_order
+    </select>
+
+    <!-- 按分类查询 -->
+    <select id="findByCategory" resultMap="SystemConfigResultMap">
+        SELECT * FROM system_config
+        WHERE category = #{category}
+        ORDER BY sort_order
+    </select>
+
+    <!-- 根据配置键查询 -->
+    <select id="findByKey" resultMap="SystemConfigResultMap">
+        SELECT * FROM system_config
+        WHERE config_key = #{configKey}
+    </select>
+
+    <!-- 查询公开配置 -->
+    <select id="findPublicConfigs" resultMap="SystemConfigResultMap">
+        SELECT * FROM system_config
+        WHERE is_public = 1
+        ORDER BY category, sort_order
+    </select>
+
+    <!-- 插入配置 -->
+    <insert id="insert" parameterType="com.community.domain.SystemConfig" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO system_config (
+            config_key, config_value, config_type, category,
+            display_name, description, is_public, sort_order, updated_by
+        ) VALUES (
+            #{configKey}, #{configValue}, #{configType}, #{category},
+            #{displayName}, #{description}, #{isPublic}, #{sortOrder}, #{updatedBy}
+        )
+    </insert>
+
+    <!-- 更新配置 -->
+    <update id="update" parameterType="com.community.domain.SystemConfig">
+        UPDATE system_config
+        SET config_value = #{configValue},
+            updated_by = #{updatedBy}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除配置 -->
+    <delete id="deleteById">
+        DELETE FROM system_config WHERE id = #{id}
+    </delete>
+
+    <!-- 批量更新配置值 -->
+    <update id="batchUpdateValue">
+        <foreach collection="configs" item="config" separator=";">
+            UPDATE system_config
+            SET config_value = #{config.configValue},
+                updated_by = #{config.updatedBy}
+            WHERE config_key = #{config.configKey}
+        </foreach>
+    </update>
+
+</mapper>

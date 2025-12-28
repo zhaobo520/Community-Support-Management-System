@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.community.dao.SkillMapper">
+
+    <resultMap id="SkillResultMap" type="com.community.domain.Skill">
+        <id property="id" column="id"/>
+        <result property="skillName" column="skill_name"/>
+        <result property="skillCode" column="skill_code"/>
+        <result property="category" column="category"/>
+        <result property="description" column="description"/>
+        <result property="icon" column="icon"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="isActive" column="is_active"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findAllActive" resultMap="SkillResultMap">
+        SELECT * FROM skill
+        WHERE is_active = 1
+        ORDER BY category, sort_order
+    </select>
+
+    <select id="findByCategory" resultMap="SkillResultMap">
+        SELECT * FROM skill
+        WHERE category = #{category} AND is_active = 1
+        ORDER BY sort_order
+    </select>
+
+    <select id="findById" resultMap="SkillResultMap">
+        SELECT * FROM skill WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.community.domain.Skill" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO skill (skill_name, skill_code, category, description, icon, sort_order, is_active)
+        VALUES (#{skillName}, #{skillCode}, #{category}, #{description}, #{icon}, #{sortOrder}, #{isActive})
+    </insert>
+
+    <update id="update" parameterType="com.community.domain.Skill">
+        UPDATE skill
+        SET skill_name = #{skillName},
+            description = #{description},
+            icon = #{icon},
+            sort_order = #{sortOrder},
+            is_active = #{isActive}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM skill WHERE id = #{id}
+    </delete>
+
+</mapper>

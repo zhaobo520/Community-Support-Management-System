@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.dao.NotificationMapper">
+
+  <resultMap id="NotificationResultMap" type="Notification">
+    <id property="id" column="id"/>
+    <result property="userId" column="user_id"/>
+    <result property="title" column="title"/>
+    <result property="content" column="content"/>
+    <result property="type" column="type"/>
+    <result property="relatedType" column="related_type"/>
+    <result property="relatedId" column="related_id"/>
+    <result property="isRead" column="is_read"/>
+    <result property="readTime" column="read_time"/>
+    <result property="createdTime" column="created_time"/>
+  </resultMap>
+
+  <sql id="baseColumns">
+    id, user_id, title, content, type, related_type, related_id, 
+    is_read, read_time, created_time
+  </sql>
+
+  <insert id="insert" parameterType="Notification" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO notification (
+      user_id, title, content, type, related_type, related_id, is_read
+    ) VALUES (
+      #{userId}, #{title}, #{content}, #{type}, #{relatedType}, #{relatedId}, 0
+    )
+  </insert>
+
+  <select id="findByUserId" resultMap="NotificationResultMap">
+    SELECT <include refid="baseColumns"/>
+    FROM notification
+    WHERE user_id = #{userId}
+    <if test="isRead != null">
+      AND is_read = #{isRead}
+    </if>
+    ORDER BY created_time DESC
+  </select>
+
+  <select id="countUnread" resultType="int">
+    SELECT COUNT(*)
+    FROM notification
+    WHERE user_id = #{userId}
+    AND is_read = 0
+  </select>
+
+  <select id="findById" resultMap="NotificationResultMap">
+    SELECT <include refid="baseColumns"/>
+    FROM notification
+    WHERE id = #{id}
+  </select>
+
+  <update id="markAsRead">
+    UPDATE notification
+    SET is_read = 1,
+        read_time = NOW()
+    WHERE id = #{id}
+  </update>
+
+  <update id="markAllAsRead">
+    UPDATE notification
+    SET is_read = 1,
+        read_time = NOW()
+    WHERE user_id = #{userId}
+    AND is_read = 0
+  </update>
+
+  <delete id="delete">
+    DELETE FROM notification
+    WHERE id = #{id}
+  </delete>
+
+  <delete id="deleteRead">
+    DELETE FROM notification
+    WHERE user_id = #{userId}
+    AND is_read = 1
+  </delete>
+
+</mapper>

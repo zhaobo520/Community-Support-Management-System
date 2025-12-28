@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.community.dao.CarePlanServiceRecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.community.domain.CarePlanServiceRecord">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="volunteer_id" property="volunteerId"/>
+        <result column="period_number" property="periodNumber"/>
+        <result column="service_number" property="serviceNumber"/>
+        <result column="service_date" property="serviceDate"/>
+        <result column="service_time_start" property="serviceTimeStart"/>
+        <result column="service_time_end" property="serviceTimeEnd"/>
+        <result column="service_content" property="serviceContent"/>
+        <result column="service_photos" property="servicePhotos"/>
+        <result column="elderly_condition" property="elderlyCondition"/>
+        <result column="remarks" property="remarks"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="audit_by" property="auditBy"/>
+        <result column="audit_time" property="auditTime"/>
+        <result column="audit_remark" property="auditRemark"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <resultMap id="DetailResultMap" type="com.community.domain.CarePlanServiceRecord" extends="BaseResultMap">
+        <result column="volunteer_name" property="volunteerName"/>
+        <result column="volunteer_avatar" property="volunteerAvatar"/>
+        <result column="auditor_name" property="auditorName"/>
+        <result column="plan_name" property="planName"/>
+        <result column="elderly_name" property="elderlyName"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        r.id, r.plan_id, r.volunteer_id, r.period_number, r.service_number, r.service_date,
+        r.service_time_start, r.service_time_end, r.service_content, r.service_photos,
+        r.elderly_condition, r.remarks, r.audit_status, r.audit_by, r.audit_time, r.audit_remark,
+        r.created_at, r.updated_at
+    </sql>
+
+    <sql id="Detail_Select">
+        SELECT <include refid="Base_Column_List"/>,
+               v.full_name as volunteer_name,
+               v.avatar as volunteer_avatar,
+               a.full_name as auditor_name,
+               cp.plan_name as plan_name,
+               e.name as elderly_name
+        FROM care_plan_service_record r
+        LEFT JOIN sys_user v ON r.volunteer_id = v.id
+        LEFT JOIN sys_user a ON r.audit_by = a.id
+        LEFT JOIN care_plan cp ON r.plan_id = cp.id
+        LEFT JOIN elderly_info e ON cp.elderly_id = e.id
+    </sql>
+
+    <!-- 根据ID查询 -->
+    <select id="findById" resultMap="DetailResultMap">
+        <include refid="Detail_Select"/>
+        WHERE r.id = #{id}
+    </select>
+
+    <!-- 根据计划ID查询所有服务记录 -->
+    <select id="findByPlanId" resultMap="DetailResultMap">
+        <include refid="Detail_Select"/>
+        WHERE r.plan_id = #{planId}
+        ORDER BY r.period_number ASC, r.service_number ASC, r.created_at DESC
+    </select>
+
+    <!-- 根据计划ID和周期编号查询服务记录 -->
+    <select id="findByPlanIdAndPeriod" resultMap="DetailResultMap">
+        <include refid="Detail_Select"/>
+        WHERE r.plan_id = #{planId} AND r.period_number = #{periodNumber}
+        ORDER BY r.service_number ASC, r.created_at DESC
+    </select>
+
+    <!-- 根据志愿者ID查询服务记录 -->
+    <select id="findByVolunteerId" resultMap="DetailResultMap">
+        <include refid="Detail_Select"/>
+        WHERE r.volunteer_id = #{volunteerId}
+        ORDER BY r.created_at DESC
+    </select>
+
+    <!-- 查询待审核的服务记录 -->
+    <select id="findPendingAudit" resultMap="DetailResultMap">
+        <include refid="Detail_Select"/>
+        WHERE r.audit_status = 'PENDING'
+        ORDER BY r.created_at ASC
+    </select>
+
+    <!-- 查询所有服务记录 -->
+    <select id="findAll" resultMap="DetailResultMap">
+        <include refid="Detail_Select"/>
+        ORDER BY r.created_at DESC
+    </select>
+
+    <!-- 根据审核状态查询 -->
+    <select id="findByAuditStatus" resultMap="DetailResultMap">
+        <include refid="Detail_Select"/>
+        WHERE r.audit_status = #{auditStatus}
+        ORDER BY r.created_at DESC
+    </select>
+
+    <!-- 插入服务记录 -->
+    <insert id="insert" parameterType="com.community.domain.CarePlanServiceRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO care_plan_service_record (
+            plan_id, volunteer_id, period_number, service_number, service_date,
+            service_time_start, service_time_end, service_content, service_photos,
+            elderly_condition, remarks, audit_status
+        ) VALUES (
+            #{planId}, #{volunteerId}, #{periodNumber}, #{serviceNumber}, #{serviceDate},
+            #{serviceTimeStart}, #{serviceTimeEnd}, #{serviceContent}, #{servicePhotos},
+            #{elderlyCondition}, #{remarks}, #{auditStatus}
+        )
+    </insert>
+
+    <!-- 更新服务记录 -->
+    <update id="update" parameterType="com.community.domain.CarePlanServiceRecord">
+        UPDATE care_plan_service_record
+        <set>
+            <if test="serviceDate != null">service_date = #{serviceDate},</if>
+            <if test="serviceTimeStart != null">service_time_start = #{serviceTimeStart},</if>
+            <if test="serviceTimeEnd != null">service_time_end = #{serviceTimeEnd},</if>
+            <if test="serviceContent != null">service_content = #{serviceContent},</if>
+            <if test="servicePhotos != null">service_photos = #{servicePhotos},</if>
+            <if test="elderlyCondition != null">elderly_condition = #{elderlyCondition},</if>
+            <if test="remarks != null">remarks = #{remarks},</if>
+            updated_at = NOW(),
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 审核服务记录 -->
+    <update id="audit">
+        UPDATE care_plan_service_record
+        SET audit_status = #{auditStatus},
+            audit_by = #{auditBy},
+            audit_time = NOW(),
+            audit_remark = #{auditRemark},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除服务记录 -->
+    <delete id="deleteById">
+        DELETE FROM care_plan_service_record WHERE id = #{id}
+    </delete>
+
+    <!-- 统计所有服务记录数 -->
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM care_plan_service_record
+    </select>
+
+    <!-- 统计计划的服务记录数 -->
+    <select id="countByPlanId" resultType="int">
+        SELECT COUNT(*) FROM care_plan_service_record WHERE plan_id = #{planId}
+    </select>
+
+    <!-- 统计计划的已审核通过服务记录数 -->
+    <select id="countApprovedByPlanId" resultType="int">
+        SELECT COUNT(*) FROM care_plan_service_record
+        WHERE plan_id = #{planId} AND audit_status = 'APPROVED'
+    </select>
+
+    <!-- 统计志愿者的服务记录数 -->
+    <select id="countByVolunteerId" resultType="int">
+        SELECT COUNT(*) FROM care_plan_service_record WHERE volunteer_id = #{volunteerId}
+    </select>
+
+    <!-- 统计待审核的服务记录数 -->
+    <select id="countPendingAudit" resultType="int">
+        SELECT COUNT(*) FROM care_plan_service_record WHERE audit_status = 'PENDING'
+    </select>
+
+    <!-- 根据审核状态统计 -->
+    <select id="countByAuditStatus" resultType="int">
+        SELECT COUNT(*) FROM care_plan_service_record WHERE audit_status = #{auditStatus}
+    </select>
+
+    <!-- 统计周期的已提交服务次数 -->
+    <select id="countByPlanIdAndPeriod" resultType="int">
+        SELECT COUNT(*) FROM care_plan_service_record
+        WHERE plan_id = #{planId} AND period_number = #{periodNumber}
+    </select>
+
+    <!-- 统计周期的已审核通过服务次数 -->
+    <select id="countApprovedByPlanIdAndPeriod" resultType="int">
+        SELECT COUNT(*) FROM care_plan_service_record
+        WHERE plan_id = #{planId} AND period_number = #{periodNumber} AND audit_status = 'APPROVED'
+    </select>
+
+    <!-- 获取本周期下一个服务编号 -->
+    <select id="getNextServiceNumber" resultType="int">
+        SELECT COALESCE(MAX(service_number), 0) + 1
+        FROM care_plan_service_record
+        WHERE plan_id = #{planId} AND period_number = #{periodNumber}
+    </select>
+
+</mapper>

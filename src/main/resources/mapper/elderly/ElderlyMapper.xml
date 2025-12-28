@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.dao.ElderlyMapper">
+
+  <resultMap id="ElderlyResultMap" type="ElderlyInfo">
+    <id property="id" column="id"/>
+    <result property="name" column="name"/>
+    <result property="idCard" column="id_card"/>
+    <result property="gender" column="gender"/>
+    <result property="birthDate" column="birth_date"/>
+    <result property="age" column="age"/>
+    <result property="phone" column="phone"/>
+    <result property="address" column="address"/>
+    <result property="healthStatus" column="health_status"/>
+    <result property="disabilityLevel" column="disability_level"/>
+    <result property="livingAlone" column="living_alone"/>
+    <result property="familyContact" column="family_contact"/>
+    <result property="familyPhone" column="family_phone"/>
+    <result property="specialNeeds" column="special_needs"/>
+    <result property="careLevel" column="care_level"/>
+    <result property="photoUrl" column="photo_url"/>
+    <result property="status" column="status"/>
+    <result property="familyUserId" column="family_user_id"/>
+    <result property="auditStatus" column="audit_status"/>
+    <result property="auditTime" column="audit_time"/>
+    <result property="auditBy" column="audit_by"/>
+    <result property="auditRemark" column="audit_remark"/>
+    <result property="createdBy" column="created_by"/>
+    <result property="createdTime" column="created_time"/>
+    <result property="updatedTime" column="updated_time"/>
+  </resultMap>
+
+  <sql id="baseColumns">
+    id, name, id_card, gender, birth_date, age, phone, address, health_status,
+    disability_level, living_alone, family_contact, family_phone, special_needs,
+    care_level, photo_url, status, family_user_id, audit_status, audit_time, audit_by, audit_remark, created_by, created_time, updated_time
+  </sql>
+
+  <select id="findAll" resultMap="ElderlyResultMap">
+    SELECT <include refid="baseColumns"/>
+    FROM elderly_info
+    WHERE status = 1 AND (audit_status = 'APPROVED' OR audit_status IS NULL)
+    <if test="keyword != null and keyword != ''">
+      AND (name LIKE CONCAT('%', #{keyword}, '%')
+      OR phone LIKE CONCAT('%', #{keyword}, '%')
+      OR address LIKE CONCAT('%', #{keyword}, '%'))
+    </if>
+    <if test="careLevel != null and careLevel != ''">
+      AND care_level = #{careLevel}
+    </if>
+    <if test="livingAlone != null">
+      AND living_alone = #{livingAlone}
+    </if>
+    ORDER BY care_level DESC, created_time DESC
+  </select>
+
+  <select id="findById" resultMap="ElderlyResultMap">
+    SELECT <include refid="baseColumns"/>
+    FROM elderly_info
+    WHERE id = #{id}
+  </select>
+
+  <insert id="insert" parameterType="ElderlyInfo" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO elderly_info (
+      name, id_card, gender, birth_date, age, phone, address, health_status,
+      disability_level, living_alone, family_contact, family_phone, special_needs,
+      care_level, photo_url, status, family_user_id, audit_status, created_by, created_time
+    ) VALUES (
+      #{name}, #{idCard}, #{gender}, #{birthDate}, #{age}, #{phone}, #{address},
+      #{healthStatus}, #{disabilityLevel}, #{livingAlone}, #{familyContact},
+      #{familyPhone}, #{specialNeeds}, #{careLevel}, #{photoUrl}, #{status}, #{familyUserId}, #{auditStatus}, #{createdBy}, NOW()
+    )
+  </insert>
+
+  <update id="update" parameterType="ElderlyInfo">
+    UPDATE elderly_info
+    SET name = #{name},
+        id_card = #{idCard},
+        gender = #{gender},
+        birth_date = #{birthDate},
+        age = #{age},
+        phone = #{phone},
+        address = #{address},
+        health_status = #{healthStatus},
+        disability_level = #{disabilityLevel},
+        living_alone = #{livingAlone},
+        family_contact = #{familyContact},
+        family_phone = #{familyPhone},
+        special_needs = #{specialNeeds},
+        care_level = #{careLevel},
+        photo_url = #{photoUrl},
+        status = #{status},
+        updated_time = NOW()
+    WHERE id = #{id}
+  </update>
+
+  <update id="delete">
+    UPDATE elderly_info
+    SET status = 0
+    WHERE id = #{id}
+  </update>
+
+  <select id="count" resultType="int">
+    SELECT COUNT(*)
+    FROM elderly_info
+    WHERE status = 1
+    <if test="keyword != null and keyword != ''">
+      AND (name LIKE CONCAT('%', #{keyword}, '%')
+      OR phone LIKE CONCAT('%', #{keyword}, '%')
+      OR address LIKE CONCAT('%', #{keyword}, '%'))
+    </if>
+    <if test="careLevel != null and careLevel != ''">
+      AND care_level = #{careLevel}
+    </if>
+    <if test="livingAlone != null">
+      AND living_alone = #{livingAlone}
+    </if>
+  </select>
+
+  <select id="checkIdCard" resultType="int">
+    SELECT COUNT(*)
+    FROM elderly_info
+    WHERE id_card = #{idCard}
+    <if test="excludeId != null">
+      AND id != #{excludeId}
+    </if>
+  </select>
+
+  <!-- 按护理等级统计数量 -->
+  <select id="countByCareLevel" resultType="map">
+    SELECT care_level AS type, COUNT(*) AS count
+    FROM elderly_info
+    WHERE status = 1
+    GROUP BY care_level
+  </select>
+
+  <!-- 统计启用状态的关爱对象数量 -->
+  <select id="countActive" resultType="long">
+    SELECT COUNT(*) FROM elderly_info WHERE status = 1
+  </select>
+
+  <!-- 统计停用状态的关爱对象数量 -->
+  <select id="countInactive" resultType="long">
+    SELECT COUNT(*) FROM elderly_info WHERE status = 0
+  </select>
+
+  <!-- 统计总数 -->
+  <select id="countTotal" resultType="long">
+    SELECT COUNT(*) FROM elderly_info
+  </select>
+
+  <!-- 根据家属用户ID查询关爱人员列表 -->
+  <select id="findByFamilyUserId" resultMap="ElderlyResultMap">
+    SELECT <include refid="baseColumns"/>
+    FROM elderly_info
+    WHERE family_user_id = #{familyUserId} AND status = 1
+    ORDER BY created_time DESC
+  </select>
+
+  <!-- 根据家属用户ID查询已审核通过的关爱人员列表 -->
+  <select id="findApprovedByFamilyUserId" resultMap="ElderlyResultMap">
+    SELECT <include refid="baseColumns"/>
+    FROM elderly_info
+    WHERE family_user_id = #{familyUserId} AND status = 1 AND audit_status = 'APPROVED'
+    ORDER BY created_time DESC
+  </select>
+
+  <!-- 查询待审核的关爱人员列表 -->
+  <select id="findPendingAudit" resultMap="ElderlyResultMap">
+    SELECT <include refid="baseColumns"/>
+    FROM elderly_info
+    WHERE audit_status = 'PENDING' AND status = 1
+    ORDER BY created_time DESC
+  </select>
+
+  <!-- 统计待审核数量 -->
+  <select id="countPendingAudit" resultType="int">
+    SELECT COUNT(*) FROM elderly_info WHERE audit_status = 'PENDING' AND status = 1
+  </select>
+
+  <!-- 审核关爱人员 -->
+  <update id="audit">
+    UPDATE elderly_info
+    SET audit_status = #{auditStatus},
+        audit_time = NOW(),
+        audit_by = #{auditBy},
+        audit_remark = #{auditRemark},
+        updated_time = NOW()
+    WHERE id = #{id}
+  </update>
+
+  <!-- 统计家属的关爱人员数量 -->
+  <select id="countByFamilyUserId" resultType="int">
+    SELECT COUNT(*) FROM elderly_info WHERE family_user_id = #{familyUserId} AND status = 1
+  </select>
+
+  <!-- 统计家属已审核通过的关爱人员数量 -->
+  <select id="countApprovedByFamilyUserId" resultType="int">
+    SELECT COUNT(*) FROM elderly_info WHERE family_user_id = #{familyUserId} AND status = 1 AND audit_status = 'APPROVED'
+  </select>
+
+  <!-- 查询所有已审核通过的关爱人员 -->
+  <select id="findApproved" resultMap="ElderlyResultMap">
+    SELECT <include refid="baseColumns"/>
+    FROM elderly_info
+    WHERE status = 1 AND audit_status = 'APPROVED'
+    ORDER BY name ASC
+  </select>
+
+</mapper>

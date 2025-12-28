@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.community.dao.SystemLogMapper">
+
+    <resultMap id="SystemLogResultMap" type="com.community.domain.SystemLog">
+        <id property="id" column="id"/>
+        <result property="logType" column="log_type"/>
+        <result property="operation" column="operation"/>
+        <result property="operatorId" column="operator_id"/>
+        <result property="operatorName" column="operator_name"/>
+        <result property="content" column="content"/>
+        <result property="ipAddress" column="ip_address"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <!-- 插入日志 -->
+    <insert id="insert" parameterType="com.community.domain.SystemLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO system_log (
+            log_type, operation, operator_id, operator_name, content, ip_address
+        ) VALUES (
+            #{logType}, #{operation}, #{operatorId}, #{operatorName}, #{content}, #{ipAddress}
+        )
+    </insert>
+
+    <!-- 查询所有日志 -->
+    <select id="findAll" resultMap="SystemLogResultMap">
+        SELECT * FROM system_log
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 按类型查询 -->
+    <select id="findByType" resultMap="SystemLogResultMap">
+        SELECT * FROM system_log
+        WHERE log_type = #{logType}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 按操作人查询 -->
+    <select id="findByOperator" resultMap="SystemLogResultMap">
+        SELECT * FROM system_log
+        WHERE operator_id = #{operatorId}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 按时间范围查询 -->
+    <select id="findByDateRange" resultMap="SystemLogResultMap">
+        SELECT * FROM system_log
+        WHERE created_at BETWEEN #{startDate} AND #{endDate}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="findByPage" resultMap="SystemLogResultMap">
+        SELECT * FROM system_log
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- 统计总数 -->
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM system_log
+    </select>
+
+    <!-- 按类型统计 -->
+    <select id="countByType" resultType="long">
+        SELECT COUNT(*) FROM system_log
+        WHERE log_type = #{logType}
+    </select>
+
+    <!-- 删除指定日期之前的日志 -->
+    <delete id="deleteByDateBefore">
+        DELETE FROM system_log
+        WHERE created_at &lt; #{date}
+    </delete>
+
+    <!-- 清空所有日志 -->
+    <delete id="deleteAll">
+        DELETE FROM system_log
+    </delete>
+
+</mapper>

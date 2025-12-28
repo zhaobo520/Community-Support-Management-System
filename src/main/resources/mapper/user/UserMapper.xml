@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.dao.UserMapper">
+
+  <resultMap id="userResult" type="com.community.domain.User">
+    <id property="id" column="id"/>
+    <result property="username" column="username"/>
+    <result property="password" column="password"/>
+    <result property="fullName" column="full_name"/>
+    <result property="phone" column="phone"/>
+    <result property="email" column="email"/>
+    <result property="avatar" column="avatar"/>
+    <result property="roleType" column="role_type"/>
+    <result property="status" column="status"/>
+    <result property="createdAt" column="created_at"/>
+    <result property="updatedAt" column="updated_at"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, username, password, full_name, phone, email, avatar, role_type, status, created_at, updated_at
+  </sql>
+
+  <select id="findByUsername" parameterType="string" resultMap="userResult">
+    SELECT <include refid="Base_Column_List"/>
+    FROM sys_user
+    WHERE username = #{username}
+  </select>
+
+  <select id="findByPhone" parameterType="string" resultMap="userResult">
+    SELECT <include refid="Base_Column_List"/>
+    FROM sys_user
+    WHERE phone = #{phone}
+  </select>
+
+  <select id="findById" parameterType="long" resultMap="userResult">
+    SELECT <include refid="Base_Column_List"/>
+    FROM sys_user
+    WHERE id = #{id}
+  </select>
+
+  <select id="findAll" resultMap="userResult">
+    SELECT <include refid="Base_Column_List"/> FROM sys_user
+  </select>
+
+  <select id="findRolesByUserId" parameterType="long" resultType="com.community.domain.Role">
+    SELECT r.id, r.role_code AS roleCode, r.role_name AS roleName,
+           r.description, r.created_at AS createdAt, r.updated_at AS updatedAt
+    FROM sys_role r
+    INNER JOIN sys_user_role ur ON ur.role_id = r.id
+    WHERE ur.user_id = #{userId}
+  </select>
+
+  <select id="findPermissionsByUserId" parameterType="long" resultType="com.community.domain.Permission">
+    SELECT p.id, p.perm_code AS permCode, p.perm_name AS permName, p.url,
+           p.created_at AS createdAt, p.updated_at AS updatedAt
+    FROM sys_permission p
+    INNER JOIN sys_role_permission rp ON rp.permission_id = p.id
+    INNER JOIN sys_user_role ur ON ur.role_id = rp.role_id
+    WHERE ur.user_id = #{userId}
+    GROUP BY p.id, p.perm_code, p.perm_name, p.url, p.created_at, p.updated_at
+  </select>
+
+  <insert id="insert" parameterType="com.community.domain.User" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO sys_user (username, password, full_name, phone, email, avatar, role_type, status)
+    VALUES (#{username}, #{password}, #{fullName}, #{phone}, #{email}, #{avatar}, #{roleType}, #{status})
+  </insert>
+
+  <update id="update" parameterType="com.community.domain.User">
+    UPDATE sys_user
+    SET full_name = #{fullName},
+        phone = #{phone},
+        email = #{email},
+        avatar = #{avatar},
+        password = #{password},
+        updated_at = NOW()
+    WHERE id = #{id}
+  </update>
+
+  <delete id="delete" parameterType="long">
+    DELETE FROM sys_user WHERE id = #{id}
+  </delete>
+
+  <!-- 统计总用户数 -->
+  <select id="countTotal" resultType="long">
+    SELECT COUNT(*) FROM sys_user WHERE status = 1
+  </select>
+
+  <!-- 按角色类型统计用户数 -->
+  <select id="countByRoleType" resultType="long">
+    SELECT COUNT(*) 
+    FROM sys_user 
+    WHERE role_type = #{roleType} AND status = 1
+  </select>
+
+  <!-- 根据角色类型查找用户 -->
+  <select id="findByRoleType" resultMap="userResult">
+    SELECT <include refid="Base_Column_List"/>
+    FROM sys_user
+    WHERE role_type = #{roleType} AND status = 1
+    ORDER BY created_at DESC
+  </select>
+
+</mapper>

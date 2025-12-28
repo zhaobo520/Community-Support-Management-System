@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.community.dao.FeedbackMapper">
+
+    <resultMap id="BaseResultMap" type="com.community.domain.Feedback">
+        <id column="id" property="id"/>
+        <result column="family_user_id" property="familyUserId"/>
+        <result column="task_id" property="taskId"/>
+        <result column="volunteer_id" property="volunteerId"/>
+        <result column="feedback_type" property="feedbackType"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="rating" property="rating"/>
+        <result column="status" property="status"/>
+        <result column="response" property="response"/>
+        <result column="responded_by" property="respondedBy"/>
+        <result column="responded_at" property="respondedAt"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <resultMap id="DetailResultMap" type="com.community.domain.Feedback" extends="BaseResultMap">
+        <result column="volunteer_name" property="volunteerName"/>
+        <result column="task_title" property="taskTitle"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, family_user_id, task_id, volunteer_id, feedback_type, title, content,
+        rating, status, response, responded_by, responded_at, created_at, updated_at
+    </sql>
+
+    <!-- Find by family user ID -->
+    <select id="findByFamilyUserId" resultMap="DetailResultMap">
+        SELECT f.*, 
+               u.full_name as volunteer_name,
+               t.title as task_title
+        FROM feedback f
+        LEFT JOIN sys_user u ON f.volunteer_id = u.id
+        LEFT JOIN task t ON f.task_id = t.id
+        WHERE f.family_user_id = #{familyUserId}
+        ORDER BY f.created_at DESC
+    </select>
+
+    <!-- Find by ID -->
+    <select id="findById" resultMap="DetailResultMap">
+        SELECT f.*, 
+               u.full_name as volunteer_name,
+               t.title as task_title
+        FROM feedback f
+        LEFT JOIN sys_user u ON f.volunteer_id = u.id
+        LEFT JOIN task t ON f.task_id = t.id
+        WHERE f.id = #{id}
+    </select>
+
+    <!-- Insert -->
+    <insert id="insert" parameterType="com.community.domain.Feedback" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO feedback (
+            family_user_id, task_id, volunteer_id, feedback_type, title, content,
+            rating, status
+        ) VALUES (
+            #{familyUserId}, #{taskId}, #{volunteerId}, #{feedbackType}, #{title}, #{content},
+            #{rating}, #{status}
+        )
+    </insert>
+
+    <!-- Update -->
+    <update id="update" parameterType="com.community.domain.Feedback">
+        UPDATE feedback 
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="response != null">response = #{response},</if>
+            <if test="respondedBy != null">responded_by = #{respondedBy},</if>
+            <if test="respondedAt != null">responded_at = #{respondedAt},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- Delete -->
+    <delete id="deleteById">
+        DELETE FROM feedback WHERE id = #{id}
+    </delete>
+
+    <!-- Count total -->
+    <select id="countByFamilyUserId" resultType="int">
+        SELECT COUNT(*) FROM feedback WHERE family_user_id = #{familyUserId}
+    </select>
+
+    <!-- Count pending -->
+    <select id="countPendingByFamilyUserId" resultType="int">
+        SELECT COUNT(*) FROM feedback 
+        WHERE family_user_id = #{familyUserId} AND status = 'PENDING'
+    </select>
+
+    <!-- Find all feedbacks (for admin) -->
+    <select id="findAll" resultMap="DetailResultMap">
+        SELECT f.*, 
+               u.full_name as volunteer_name,
+               t.title as task_title
+        FROM feedback f
+        LEFT JOIN sys_user u ON f.volunteer_id = u.id
+        LEFT JOIN task t ON f.task_id = t.id
+        ORDER BY 
+            CASE f.status
+                WHEN 'PENDING' THEN 1
+                WHEN 'PROCESSING' THEN 2
+                WHEN 'RESOLVED' THEN 3
+            END,
+            f.created_at DESC
+    </select>
+
+    <!-- Count all -->
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM feedback
+    </select>
+
+    <!-- Count by status -->
+    <select id="countByStatus" resultType="int">
+        SELECT COUNT(*) FROM feedback WHERE status = #{status}
+    </select>
+
+</mapper>

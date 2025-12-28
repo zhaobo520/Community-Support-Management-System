@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.dao.BadgeMapper">
+
+    <resultMap id="BadgeMap" type="com.community.domain.Badge">
+        <id property="id" column="id"/>
+        <result property="badgeCode" column="badge_code"/>
+        <result property="badgeName" column="badge_name"/>
+        <result property="badgeIcon" column="badge_icon"/>
+        <result property="description" column="description"/>
+        <result property="unlockCondition" column="unlock_condition"/>
+        <result property="conditionType" column="condition_type"/>
+        <result property="conditionValue" column="condition_value"/>
+        <result property="level" column="level"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="earned" column="earned"/>
+        <result property="earnedAt" column="earned_at"/>
+    </resultMap>
+
+    <!-- 查询所有勋章 -->
+    <select id="findAll" resultMap="BadgeMap">
+        SELECT * FROM badge ORDER BY level, condition_value
+    </select>
+
+    <!-- 根据ID查询勋章 -->
+    <select id="findById" resultMap="BadgeMap">
+        SELECT * FROM badge WHERE id = #{id}
+    </select>
+
+    <!-- 根据代码查询勋章 -->
+    <select id="findByCode" resultMap="BadgeMap">
+        SELECT * FROM badge WHERE badge_code = #{badgeCode}
+    </select>
+
+    <!-- 查询用户已获得的勋章 -->
+    <select id="findUserBadges" resultMap="BadgeMap">
+        SELECT b.*, TRUE as earned, vb.earned_at
+        FROM badge b
+        INNER JOIN volunteer_badge vb ON b.id = vb.badge_id
+        WHERE vb.user_id = #{userId}
+        ORDER BY vb.earned_at DESC
+    </select>
+
+    <!-- 查询用户未获得的勋章 -->
+    <select id="findUserUnlockedBadges" resultMap="BadgeMap">
+        SELECT b.*, FALSE as earned
+        FROM badge b
+        WHERE b.id NOT IN (
+            SELECT badge_id FROM volunteer_badge WHERE user_id = #{userId}
+        )
+        ORDER BY b.level, b.condition_value
+    </select>
+
+    <!-- 检查用户是否已获得勋章 -->
+    <select id="hasUserBadge" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM volunteer_badge
+        WHERE user_id = #{userId} AND badge_id = #{badgeId}
+    </select>
+
+    <!-- 授予用户勋章 -->
+    <insert id="grantBadge">
+        INSERT INTO volunteer_badge (user_id, badge_id)
+        VALUES (#{userId}, #{badgeId})
+        ON DUPLICATE KEY UPDATE earned_at = CURRENT_TIMESTAMP
+    </insert>
+
+    <!-- 统计用户勋章数量 -->
+    <select id="countUserBadges" resultType="int">
+        SELECT COUNT(*)
+        FROM volunteer_badge
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 统计用户高分评价任务数量（4分及以上） -->
+    <select id="countHighRatingTasks" resultType="int">
+        SELECT COUNT(*)
+        FROM task_info
+        WHERE volunteer_id = #{userId}
+          AND status = 'APPROVED'
+          AND rating >= 4
+    </select>
+
+</mapper>

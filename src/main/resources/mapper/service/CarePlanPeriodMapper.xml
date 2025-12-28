@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.community.dao.CarePlanPeriodMapper">
+
+    <resultMap id="BaseResultMap" type="com.community.domain.CarePlanPeriod">
+        <id column="id" property="id"/>
+        <result column="care_plan_id" property="carePlanId"/>
+        <result column="period_number" property="periodNumber"/>
+        <result column="period_start_date" property="periodStartDate"/>
+        <result column="period_end_date" property="periodEndDate"/>
+        <result column="required_services" property="requiredServices"/>
+        <result column="completed_services" property="completedServices"/>
+        <result column="approved_services" property="approvedServices"/>
+        <result column="status" property="status"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, care_plan_id, period_number, period_start_date, period_end_date,
+        required_services, completed_services, approved_services, status,
+        created_at, updated_at
+    </sql>
+
+    <!-- 根据ID查询 -->
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM care_plan_period
+        WHERE id = #{id}
+    </select>
+
+    <!-- 根据计划ID查询所有周期 -->
+    <select id="findByCarePlanId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM care_plan_period
+        WHERE care_plan_id = #{carePlanId}
+        ORDER BY period_number ASC
+    </select>
+
+    <!-- 根据计划ID和周期编号查询 -->
+    <select id="findByCarePlanIdAndPeriodNumber" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM care_plan_period
+        WHERE care_plan_id = #{carePlanId} AND period_number = #{periodNumber}
+    </select>
+
+    <!-- 插入周期 -->
+    <insert id="insert" parameterType="com.community.domain.CarePlanPeriod" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO care_plan_period (
+            care_plan_id, period_number, period_start_date, period_end_date,
+            required_services, completed_services, approved_services, status
+        ) VALUES (
+            #{carePlanId}, #{periodNumber}, #{periodStartDate}, #{periodEndDate},
+            #{requiredServices}, #{completedServices}, #{approvedServices}, #{status}
+        )
+    </insert>
+
+    <!-- 批量插入周期 -->
+    <insert id="batchInsert" parameterType="list">
+        INSERT INTO care_plan_period (
+            care_plan_id, period_number, period_start_date, period_end_date,
+            required_services, completed_services, approved_services, status
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.carePlanId}, #{item.periodNumber}, #{item.periodStartDate}, #{item.periodEndDate},
+             #{item.requiredServices}, #{item.completedServices}, #{item.approvedServices}, #{item.status})
+        </foreach>
+    </insert>
+
+    <!-- 更新周期 -->
+    <update id="update" parameterType="com.community.domain.CarePlanPeriod">
+        UPDATE care_plan_period
+        <set>
+            <if test="periodStartDate != null">period_start_date = #{periodStartDate},</if>
+            <if test="periodEndDate != null">period_end_date = #{periodEndDate},</if>
+            <if test="requiredServices != null">required_services = #{requiredServices},</if>
+            <if test="completedServices != null">completed_services = #{completedServices},</if>
+            <if test="approvedServices != null">approved_services = #{approvedServices},</if>
+            <if test="status != null">status = #{status},</if>
+            updated_at = NOW(),
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 更新周期已完成服务次数 -->
+    <update id="updateCompletedServices">
+        UPDATE care_plan_period
+        SET completed_services = #{completedServices}, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 更新周期已审核通过服务次数 -->
+    <update id="updateApprovedServices">
+        UPDATE care_plan_period
+        SET approved_services = #{approvedServices}, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 更新周期状态 -->
+    <update id="updateStatus">
+        UPDATE care_plan_period
+        SET status = #{status}, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除周期 -->
+    <delete id="deleteById">
+        DELETE FROM care_plan_period WHERE id = #{id}
+    </delete>
+
+    <!-- 根据计划ID删除所有周期 -->
+    <delete id="deleteByCarePlanId">
+        DELETE FROM care_plan_period WHERE care_plan_id = #{carePlanId}
+    </delete>
+
+    <!-- 统计计划的周期数 -->
+    <select id="countByCarePlanId" resultType="int">
+        SELECT COUNT(*) FROM care_plan_period WHERE care_plan_id = #{carePlanId}
+    </select>
+
+    <!-- 获取当前进行中的周期 -->
+    <select id="findCurrentPeriod" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM care_plan_period
+        WHERE care_plan_id = #{carePlanId}
+          AND status = 'PENDING'
+          AND CURDATE() BETWEEN period_start_date AND period_end_date
+        ORDER BY period_number ASC
+        LIMIT 1
+    </select>
+
+</mapper>

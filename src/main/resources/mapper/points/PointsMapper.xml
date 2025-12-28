@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.dao.PointsMapper">
+
+    <!-- Result Map -->
+    <resultMap id="PointsRecordMap" type="com.community.domain.PointsRecord">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="points" column="points"/>
+        <result property="totalPoints" column="total_points"/>
+        <result property="sourceType" column="source_type"/>
+        <result property="sourceId" column="source_id"/>
+        <result property="reason" column="reason"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="username" column="username"/>
+        <result property="fullName" column="full_name"/>
+    </resultMap>
+
+    <!-- 插入积分记录 -->
+    <insert id="insert" parameterType="com.community.domain.PointsRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO points_record (user_id, points, total_points, source_type, source_id, reason)
+        VALUES (#{userId}, #{points}, #{totalPoints}, #{sourceType}, #{sourceId}, #{reason})
+    </insert>
+
+    <!-- 查询用户积分记录列表 -->
+    <select id="findByUserId" resultMap="PointsRecordMap">
+        SELECT pr.*, u.username, u.full_name
+        FROM points_record pr
+        LEFT JOIN sys_user u ON pr.user_id = u.id
+        WHERE pr.user_id = #{userId}
+        ORDER BY pr.created_at DESC
+    </select>
+
+    <!-- 查询所有积分记录（带用户信息） -->
+    <select id="findAllWithUser" resultMap="PointsRecordMap">
+        SELECT pr.*, u.username, u.full_name
+        FROM points_record pr
+        LEFT JOIN sys_user u ON pr.user_id = u.id
+        ORDER BY pr.created_at DESC
+        LIMIT 100
+    </select>
+
+    <!-- 获取用户当前总积分 -->
+    <select id="getUserTotalPoints" resultType="int">
+        SELECT COALESCE(total_points, 0)
+        FROM volunteer_profile
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 更新志愿者总积分 -->
+    <update id="updateVolunteerTotalPoints">
+        UPDATE volunteer_profile
+        SET total_points = #{totalPoints}
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- 获取积分排行榜 -->
+    <select id="getRankingList" resultType="map">
+        SELECT 
+            vp.user_id,
+            u.username,
+            u.full_name,
+            u.avatar,
+            vp.total_points,
+            COUNT(DISTINCT ti.id) as completed_tasks,
+            ROW_NUMBER() OVER (ORDER BY vp.total_points DESC) as ranking
+        FROM volunteer_profile vp
+        LEFT JOIN sys_user u ON vp.user_id = u.id
+        LEFT JOIN task_info ti ON ti.volunteer_id = vp.user_id AND ti.status = 'APPROVED'
+        WHERE vp.volunteer_status = 'APPROVED' AND vp.total_points > 0
+        GROUP BY vp.user_id, u.username, u.full_name, u.avatar, vp.total_points
+        ORDER BY vp.total_points DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 获取指定日期后的积分排行榜 -->
+    <select id="getRankingListByDate" resultType="map">
+        SELECT 
+            pr.user_id,
+            u.username,
+            u.full_name,
+            u.avatar,
+            CAST(SUM(pr.points) AS UNSIGNED) as total_points,
+            COUNT(DISTINCT CASE WHEN pr.source_type = 'TASK_COMPLETE' THEN pr.source_id END) as completed_tasks,
+            ROW_NUMBER() OVER (ORDER BY SUM(pr.points) DESC) as ranking
+        FROM points_record pr
+        LEFT JOIN sys_user u ON pr.user_id = u.id
+        WHERE pr.points > 0 AND pr.created_at >= #{startDate}
+        GROUP BY pr.user_id, u.username, u.full_name, u.avatar
+        ORDER BY total_points DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 获取用户积分排名 -->
+    <select id="getUserRanking" resultType="int">
+        SELECT ranking FROM (
+            SELECT 
+                user_id,
+                ROW_NUMBER() OVER (ORDER BY total_points DESC) as ranking
+            FROM volunteer_profile
+            WHERE volunteer_status = 'APPROVED' AND total_points > 0
+        ) ranked
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 统计用户完成的任务数 -->
+    <select id="countUserCompletedTasks" resultType="int">
+        SELECT COUNT(*)
+        FROM task_info
+        WHERE volunteer_id = #{userId} AND status = 'APPROVED'
+    </select>
+
+</mapper>

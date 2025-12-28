@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.community.dao.ServiceRecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.community.domain.ServiceRecord">
+        <id column="id" property="id"/>
+        <result column="task_id" property="taskId"/>
+        <result column="volunteer_id" property="volunteerId"/>
+        <result column="elderly_id" property="elderlyId"/>
+        <result column="family_user_id" property="familyUserId"/>
+        <result column="service_date" property="serviceDate"/>
+        <result column="service_content" property="serviceContent"/>
+        <result column="service_duration" property="serviceDuration"/>
+        <result column="service_photos" property="servicePhotos"/>
+        <result column="service_notes" property="serviceNotes"/>
+        <result column="family_feedback" property="familyFeedback"/>
+        <result column="rating" property="rating"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <resultMap id="DetailResultMap" type="com.community.domain.ServiceRecord" extends="BaseResultMap">
+        <result column="volunteer_name" property="volunteerName"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, task_id, volunteer_id, elderly_id, family_user_id, service_date,
+        service_content, service_duration, service_photos, service_notes,
+        family_feedback, rating, created_at, updated_at
+    </sql>
+
+    <!-- Find by family user ID with volunteer name -->
+    <select id="findByFamilyUserId" resultMap="DetailResultMap">
+        SELECT sr.*, u.full_name as volunteer_name
+        FROM service_record sr
+        LEFT JOIN sys_user u ON sr.volunteer_id = u.id
+        WHERE sr.family_user_id = #{familyUserId}
+        ORDER BY sr.service_date DESC
+    </select>
+
+    <!-- Find by ID -->
+    <select id="findById" resultMap="DetailResultMap">
+        SELECT sr.*, u.full_name as volunteer_name
+        FROM service_record sr
+        LEFT JOIN sys_user u ON sr.volunteer_id = u.id
+        WHERE sr.id = #{id}
+    </select>
+
+    <!-- Insert -->
+    <insert id="insert" parameterType="com.community.domain.ServiceRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO service_record (
+            task_id, volunteer_id, elderly_id, family_user_id, service_date,
+            service_content, service_duration, service_photos, service_notes,
+            family_feedback, rating
+        ) VALUES (
+            #{taskId}, #{volunteerId}, #{elderlyId}, #{familyUserId}, #{serviceDate},
+            #{serviceContent}, #{serviceDuration}, #{servicePhotos}, #{serviceNotes},
+            #{familyFeedback}, #{rating}
+        )
+    </insert>
+
+    <!-- Update -->
+    <update id="update" parameterType="com.community.domain.ServiceRecord">
+        UPDATE service_record SET
+            family_feedback = #{familyFeedback},
+            rating = #{rating}
+        WHERE id = #{id}
+    </update>
+
+    <!-- Delete -->
+    <delete id="deleteById">
+        DELETE FROM service_record WHERE id = #{id}
+    </delete>
+
+    <!-- Count -->
+    <select id="countByFamilyUserId" resultType="int">
+        SELECT COUNT(*) FROM service_record WHERE family_user_id = #{familyUserId}
+    </select>
+
+</mapper>

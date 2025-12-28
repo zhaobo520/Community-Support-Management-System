@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.community.dao.CarePlanMapper">
+
+    <resultMap id="BaseResultMap" type="com.community.domain.CarePlan">
+        <id column="id" property="id"/>
+        <result column="family_user_id" property="familyUserId"/>
+        <result column="elderly_id" property="elderlyId"/>
+        <result column="plan_name" property="planName"/>
+        <result column="description" property="description"/>
+        <result column="service_type" property="serviceType"/>
+        <result column="service_frequency" property="serviceFrequency"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="status" property="status"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="audit_by" property="auditBy"/>
+        <result column="audit_time" property="auditTime"/>
+        <result column="audit_remark" property="auditRemark"/>
+        <result column="claim_status" property="claimStatus"/>
+        <result column="assigned_volunteer_id" property="assignedVolunteerId"/>
+        <result column="claimed_time" property="claimedTime"/>
+        <result column="period_type" property="periodType"/>
+        <result column="services_per_period" property="servicesPerPeriod"/>
+        <result column="total_periods" property="totalPeriods"/>
+        <result column="current_period" property="currentPeriod"/>
+        <result column="total_services" property="totalServices"/>
+        <result column="completed_services" property="completedServices"/>
+        <result column="approved_services" property="approvedServices"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="created_by" property="createdBy"/>
+    </resultMap>
+
+    <resultMap id="DetailResultMap" type="com.community.domain.CarePlan" extends="BaseResultMap">
+        <result column="volunteer_name" property="volunteerName"/>
+        <result column="volunteer_phone" property="volunteerPhone"/>
+        <result column="volunteer_avatar" property="volunteerAvatar"/>
+        <result column="family_name" property="familyName"/>
+        <result column="family_phone" property="familyPhone"/>
+        <result column="elderly_name" property="elderlyName"/>
+        <result column="elderly_age" property="elderlyAge"/>
+        <result column="elderly_address" property="elderlyAddress"/>
+        <result column="auditor_name" property="auditorName"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        cp.id, cp.family_user_id, cp.elderly_id, cp.plan_name, cp.description, cp.service_type,
+        cp.service_frequency, cp.start_date, cp.end_date, cp.status, cp.audit_status,
+        cp.audit_by, cp.audit_time, cp.audit_remark, cp.claim_status, cp.assigned_volunteer_id,
+        cp.claimed_time, cp.period_type, cp.services_per_period, cp.total_periods, cp.current_period,
+        cp.total_services, cp.completed_services, cp.approved_services, cp.created_at, cp.updated_at, cp.created_by
+    </sql>
+
+    <sql id="Detail_Select">
+        SELECT <include refid="Base_Column_List"/>,
+               v.full_name as volunteer_name,
+               v.phone as volunteer_phone,
+               v.avatar as volunteer_avatar,
+               f.full_name as family_name,
+               f.phone as family_phone,
+               e.name as elderly_name,
+               e.age as elderly_age,
+               e.address as elderly_address,
+               a.full_name as auditor_name
+        FROM care_plan cp
+        LEFT JOIN sys_user v ON cp.assigned_volunteer_id = v.id
+        LEFT JOIN sys_user f ON cp.family_user_id = f.id
+        LEFT JOIN sys_user a ON cp.audit_by = a.id
+        LEFT JOIN elderly_info e ON cp.elderly_id = e.id
+    </sql>
+
+    <!-- 根据ID查询 -->
+    <select id="findById" resultMap="DetailResultMap">
+        <include refid="Detail_Select"/>
+        WHERE cp.id = #{id}
+    </select>
+
+    <!-- 根据家属用户ID查询 -->
+    <select id="findByFamilyUserId" resultMap="DetailResultMap">
+        <include refid="Detail_Select"/>
+        WHERE cp.family_user_id = #{familyUserId}
+        ORDER BY
+            CASE cp.audit_status WHEN 'PENDING' THEN 1 WHEN 'APPROVED' THEN 2 ELSE 3 END,
+            CASE cp.status WHEN 'ACTIVE' THEN 1 WHEN 'COMPLETED' THEN 2 ELSE 3 END,
+            cp.created_at DESC
+    </select>
+
+    <!-- 查询所有（管理员） -->
+    <select id="findAll" resultMap="DetailResultMap">
+        <include refid="Detail_Select"/>
+        ORDER BY
+            CASE cp.audit_status WHEN 'PENDING' THEN 1 WHEN 'APPROVED' THEN 2 ELSE 3 END,
+            cp.created_at DESC
+    </select>
+
+    <!-- 根据状态查询 -->
+    <select id="findByStatus" resultMap="DetailResultMap">
+        <include refid="Detail_Select"/>
+        WHERE cp.status = #{status}
+        ORDER BY cp.created_at DESC
+    </select>
+
+    <!-- 根据审核状态查询 -->
+    <select id="findByAuditStatus" resultMap="DetailResultMap">
+        <include refid="Detail_Select"/>
+        WHERE cp.audit_status = #{auditStatus}
+        ORDER BY cp.created_at ASC
+    </select>
+
+    <!-- 查询待审核的计划 -->
+    <select id="findPendingAudit" resultMap="DetailResultMap">
+        <include refid="Detail_Select"/>
+        WHERE cp.audit_status = 'PENDING'
+        ORDER BY cp.created_at ASC
+    </select>
+
+    <!-- 查询可认领的计划（已审核通过且未被认领，状态为DRAFT待接单） -->
+    <select id="findClaimable" resultMap="DetailResultMap">
+        <include refid="Detail_Select"/>
+        WHERE cp.audit_status = 'APPROVED'
+          AND cp.claim_status = 'UNCLAIMED'
+          AND cp.status = 'DRAFT'
+        ORDER BY cp.created_at ASC
+    </select>
+
+    <!-- 根据志愿者ID查询已认领的计划 -->
+    <select id="findByVolunteerId" resultMap="DetailResultMap">
+        <include refid="Detail_Select"/>
+        WHERE cp.assigned_volunteer_id = #{volunteerId}
+        ORDER BY
+            CASE cp.status WHEN 'ACTIVE' THEN 1 WHEN 'COMPLETED' THEN 2 ELSE 3 END,
+            cp.created_at DESC
+    </select>
+
+    <!-- 插入 -->
+    <insert id="insert" parameterType="com.community.domain.CarePlan" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO care_plan (
+            family_user_id, elderly_id, plan_name, description, service_type,
+            service_frequency, start_date, end_date, status, audit_status,
+            claim_status, period_type, services_per_period, total_periods,
+            current_period, total_services, completed_services, approved_services, created_by
+        ) VALUES (
+            #{familyUserId}, #{elderlyId}, #{planName}, #{description}, #{serviceType},
+            #{serviceFrequency}, #{startDate}, #{endDate}, #{status}, #{auditStatus},
+            #{claimStatus}, #{periodType}, #{servicesPerPeriod}, #{totalPeriods},
+            #{currentPeriod}, #{totalServices}, #{completedServices}, #{approvedServices}, #{createdBy}
+        )
+    </insert>
+
+    <!-- 更新 -->
+    <update id="update" parameterType="com.community.domain.CarePlan">
+        UPDATE care_plan
+        <set>
+            <if test="planName != null">plan_name = #{planName},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="serviceType != null">service_type = #{serviceType},</if>
+            <if test="serviceFrequency != null">service_frequency = #{serviceFrequency},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="auditStatus != null">audit_status = #{auditStatus},</if>
+            <if test="auditBy != null">audit_by = #{auditBy},</if>
+            <if test="auditTime != null">audit_time = #{auditTime},</if>
+            <if test="auditRemark != null">audit_remark = #{auditRemark},</if>
+            <if test="claimStatus != null">claim_status = #{claimStatus},</if>
+            <if test="assignedVolunteerId != null">assigned_volunteer_id = #{assignedVolunteerId},</if>
+            <if test="claimedTime != null">claimed_time = #{claimedTime},</if>
+            <if test="periodType != null">period_type = #{periodType},</if>
+            <if test="servicesPerPeriod != null">services_per_period = #{servicesPerPeriod},</if>
+            <if test="totalPeriods != null">total_periods = #{totalPeriods},</if>
+            <if test="currentPeriod != null">current_period = #{currentPeriod},</if>
+            <if test="totalServices != null">total_services = #{totalServices},</if>
+            <if test="completedServices != null">completed_services = #{completedServices},</if>
+            <if test="approvedServices != null">approved_services = #{approvedServices},</if>
+            <if test="elderlyId != null">elderly_id = #{elderlyId},</if>
+            updated_at = NOW(),
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 审核计划 -->
+    <update id="audit">
+        UPDATE care_plan
+        SET audit_status = #{auditStatus},
+            audit_by = #{auditBy},
+            audit_time = NOW(),
+            audit_remark = #{auditRemark},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 认领计划 -->
+    <update id="claim">
+        UPDATE care_plan
+        SET claim_status = 'CLAIMED',
+            assigned_volunteer_id = #{volunteerId},
+            claimed_time = NOW(),
+            updated_at = NOW()
+        WHERE id = #{id} AND claim_status = 'UNCLAIMED' AND audit_status = 'APPROVED'
+    </update>
+
+    <!-- 更新状态 -->
+    <update id="updateStatus">
+        UPDATE care_plan
+        SET status = #{status}, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 更新已完成服务次数 -->
+    <update id="updateCompletedServices">
+        UPDATE care_plan
+        SET completed_services = #{completedServices}, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 更新已审核通过服务次数 -->
+    <update id="updateApprovedServices">
+        UPDATE care_plan
+        SET approved_services = #{approvedServices}, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById">
+        DELETE FROM care_plan WHERE id = #{id}
+    </delete>
+
+    <!-- 统计：根据家属用户ID -->
+    <select id="countByFamilyUserId" resultType="int">
+        SELECT COUNT(*) FROM care_plan WHERE family_user_id = #{familyUserId}
+    </select>
+
+    <!-- 统计：根据家属用户ID和状态 -->
+    <select id="countActiveByFamilyUserId" resultType="int">
+        SELECT COUNT(*) FROM care_plan
+        WHERE family_user_id = #{familyUserId} AND status = 'ACTIVE'
+    </select>
+
+    <!-- 统计：全部 -->
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM care_plan
+    </select>
+
+    <!-- 统计：根据状态 -->
+    <select id="countByStatus" resultType="int">
+        SELECT COUNT(*) FROM care_plan WHERE status = #{status}
+    </select>
+
+    <!-- 统计：根据审核状态 -->
+    <select id="countByAuditStatus" resultType="int">
+        SELECT COUNT(*) FROM care_plan WHERE audit_status = #{auditStatus}
+    </select>
+
+    <!-- 统计：待审核 -->
+    <select id="countPendingAudit" resultType="int">
+        SELECT COUNT(*) FROM care_plan WHERE audit_status = 'PENDING'
+    </select>
+
+    <!-- 统计：可认领 -->
+    <select id="countClaimable" resultType="int">
+        SELECT COUNT(*) FROM care_plan
+        WHERE audit_status = 'APPROVED' AND claim_status = 'UNCLAIMED' AND status = 'DRAFT'
+    </select>
+
+    <!-- 统计：根据志愿者ID -->
+    <select id="countByVolunteerId" resultType="int">
+        SELECT COUNT(*) FROM care_plan WHERE assigned_volunteer_id = #{volunteerId}
+    </select>
+
+    <!-- 统计：根据志愿者ID和状态 -->
+    <select id="countActiveByVolunteerId" resultType="int">
+        SELECT COUNT(*) FROM care_plan
+        WHERE assigned_volunteer_id = #{volunteerId} AND status = 'ACTIVE'
+    </select>
+
+</mapper>

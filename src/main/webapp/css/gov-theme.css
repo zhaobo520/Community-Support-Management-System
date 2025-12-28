@@ -1,0 +1,264 @@
+:root {
+    /* 中国红政府风格主题 - 标准政务版 */
+    --gov-red: #D32F2F;
+    --gov-red-dark: #B71C1C;
+    --gov-red-light: #FF5252;
+    --gov-red-deep: #8B1A1A;
+    
+    /* 辅助色 */
+    --gov-gold: #FFD700;
+    --gov-yellow: #FFC107;
+    --gov-blue: #1976D2;
+    --gov-green: #4CAF50;
+    
+    /* 背景色 */
+    --bg-main: #FAF5F0; /* 米黄色主背景 */
+    --bg-white: #FFFFFF;
+    --bg-light: #FFF8F5;
+    --bg-card: #FFFFFF;
+    
+    /* 文字颜色 */
+    --text-primary: #212121;
+    --text-secondary: #666666;
+    --text-light: #999999;
+    
+    /* 边框 */
+    --border-color: #E0E0E0;
+    --border-light: #F5F5F5;
+    
+    /* 阴影 */
+    --shadow-sm: 0 1px 4px rgba(0,0,0,0.08);
+    --shadow-card: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-hover: 0 4px 12px rgba(0,0,0,0.12);
+    --shadow-lg: 0 8px 16px rgba(0,0,0,0.12);
+    
+    /* 圆角 - 更方正 */
+    --border-radius: 4px;
+    --border-radius-sm: 2px;
+    --border-radius-lg: 8px;
+    
+    /* 过渡动画 */
+    --transition: all 0.3s ease;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Microsoft YaHei", "SimHei", "Segoe UI", sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 政务风格顶部栏 */
+.gov-header {
+    background: linear-gradient(90deg, #B71C1C 0%, #D32F2F 100%);
+    height: 60px;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    position: relative;
+}
+
+.gov-header::before {
+    content: '★';
+    position: absolute;
+    left: 20px;
+    color: #FFD700;
+    font-size: 24px;
+}
+
+.gov-header h1 {
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+    margin-left: 50px;
+    letter-spacing: 1px;
+}
+
+.gov-header .nav-links {
+    display: flex;
+    gap: 30px;
+}
+
+.gov-header .nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    transition: opacity 0.3s;
+}
+
+.gov-header .nav-links a:hover {
+    opacity: 0.8;
+}
+
+/* 通用动画类 */
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 标题样式 */
+h1, h2, h3 {
+    font-weight: 700;
+    color: var(--gov-red-dark);
+    letter-spacing: 1px;
+}
+
+/* 链接样式 */
+a {
+    color: var(--gov-red);
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
+a:hover {
+    color: var(--gov-red-light);
+    text-decoration: underline;
+}
+
+/* 按钮样式 - 政务版 */
+.gov-btn {
+    padding: 8px 20px;
+    background: white;
+    color: var(--gov-red);
+    border: 1px solid var(--gov-red);
+    border-radius: var(--border-radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+}
+
+.gov-btn:hover {
+    background: var(--gov-red);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.gov-btn-solid {
+    background: var(--gov-red);
+    color: white;
+    border: 1px solid var(--gov-red);
+}
+
+.gov-btn-solid:hover {
+    background: var(--gov-red-dark);
+    border-color: var(--gov-red-dark);
+}
+
+/* 卡片样式 - 政务版 */
+.gov-card {
+    background: var(--bg-card);
+    border-radius: var(--border-radius);
+    padding: 24px;
+    box-shadow: var(--shadow-card);
+    transition: var(--transition);
+    position: relative;
+    border: 1px solid var(--border-light);
+}
+
+.gov-card:hover {
+    box-shadow: var(--shadow-hover);
+}
+
+/* 带红线装饰的卡片 */
+.gov-card-bordered {
+    border-left: 4px solid var(--gov-red);
+    padding-left: 20px;
+}
+
+/* 统计卡片样式 */
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-card);
+    position: relative;
+    border-left: 4px solid var(--gov-red);
+    min-height: 120px;
+}
+
+.stat-card .stat-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.stat-card .stat-value {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--gov-red);
+    line-height: 1;
+}
+
+.stat-card .stat-desc {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-top: 8px;
+}
+
+/* 输入框样式 */
+.gov-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-size: 14px;
+    background: white;
+    transition: var(--transition);
+}
+
+.gov-input:focus {
+    outline: none;
+    border-color: var(--gov-red);
+    box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.1);
+}
+
+/* 标签/Badge */
+.gov-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 2px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.gov-badge.primary {
+    background: rgba(183, 28, 28, 0.1);
+    color: var(--gov-red);
+    border: 1px solid rgba(183, 28, 28, 0.2);
+}
+
+/* 表单组 */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+/* 提示信息 */
+.hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+}

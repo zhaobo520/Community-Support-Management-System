@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+  <!-- Scan MVC controllers -->
+  <context:component-scan base-package="com.community.web"/>
+
+  <!-- Custom conversion service for date formatting -->
+  <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+    <property name="converters">
+      <set>
+        <bean class="com.community.web.converter.DateConverter"/>
+      </set>
+    </property>
+  </bean>
+
+  <!-- Enable @RequestMapping, @ResponseBody, etc. -->
+  <mvc:annotation-driven conversion-service="conversionService"/>
+
+  <!-- Enable default servlet for static resources -->
+  <mvc:default-servlet-handler/>
+
+  <!-- Static resource handling -->
+  <mvc:resources mapping="/static/**" location="/static/" cache-period="3600"/>
+  <mvc:resources mapping="/css/**" location="/css/" cache-period="3600"/>
+
+  <!-- Note: /uploads/** is handled by UploadController -->
+
+  <!-- View resolver for JSP pages under /WEB-INF/views/ -->
+  <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <property name="prefix" value="/WEB-INF/views/"/>
+    <property name="suffix" value=".jsp"/>
+  </bean>
+
+  <!-- File upload support -->
+  <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    <property name="defaultEncoding" value="UTF-8"/>
+    <property name="maxUploadSize" value="10485760"/>
+  </bean>
+
+  <!-- Login interceptor -->
+  <bean id="loginInterceptor" class="com.community.web.interceptor.LoginInterceptor"/>
+
+  <mvc:interceptors>
+    <mvc:interceptor>
+      <mvc:mapping path="/**"/>
+      <mvc:exclude-mapping path="/user/login"/>
+      <mvc:exclude-mapping path="/user/admin/login"/>
+      <mvc:exclude-mapping path="/user/volunteer/login"/>
+      <mvc:exclude-mapping path="/user/family/login"/>
+      <mvc:exclude-mapping path="/user/doLogin"/>
+      <mvc:exclude-mapping path="/user/volunteer/register"/>
+      <mvc:exclude-mapping path="/user/family/register"/>
+      <mvc:exclude-mapping path="/user/volunteer/appeal"/>
+      <mvc:exclude-mapping path="/user/volunteer/reset-password"/>
+      <mvc:exclude-mapping path="/user/volunteer/submit-appeal"/>
+      <mvc:exclude-mapping path="/user/volunteer/update-password"/>
+      <mvc:exclude-mapping path="/user/family/appeal"/>
+      <mvc:exclude-mapping path="/user/family/reset-password"/>
+      <mvc:exclude-mapping path="/user/family/submit-appeal"/>
+      <mvc:exclude-mapping path="/user/family/update-password"/>
+      <mvc:exclude-mapping path="/static/**"/>
+      <mvc:exclude-mapping path="/css/**"/>
+      <mvc:exclude-mapping path="/uploads/**"/>
+      <mvc:exclude-mapping path="/"/>
+      <mvc:exclude-mapping path="/index.jsp"/>
+      <ref bean="loginInterceptor"/>
+    </mvc:interceptor>
+  </mvc:interceptors>
+
+</beans>

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.dao.VolunteerMapper">
+
+  <resultMap id="VolunteerResultMap" type="VolunteerProfile">
+    <id property="id" column="id"/>
+    <result property="userId" column="user_id"/>
+    <result property="idCard" column="id_card"/>
+    <result property="gender" column="gender"/>
+    <result property="birthDate" column="birth_date"/>
+    <result property="age" column="age"/>
+    <result property="address" column="address"/>
+    <result property="emergencyContact" column="emergency_contact"/>
+    <result property="emergencyPhone" column="emergency_phone"/>
+    <result property="skills" column="skills"/>
+    <result property="serviceArea" column="service_area"/>
+    <result property="availableTime" column="available_time"/>
+    <result property="volunteerStatus" column="volunteer_status"/>
+    <result property="approveTime" column="approve_time"/>
+    <result property="approveBy" column="approve_by"/>
+    <result property="serviceHours" column="service_hours"/>
+    <result property="taskCount" column="task_count"/>
+    <result property="averageRating" column="average_rating"/>
+    <result property="introduction" column="introduction"/>
+    <result property="photoUrl" column="photo_url"/>
+    <result property="createdTime" column="created_time"/>
+    <result property="updatedTime" column="updated_time"/>
+    <!-- 用户信息 -->
+    <result property="username" column="username"/>
+    <result property="fullName" column="full_name"/>
+    <result property="phone" column="phone"/>
+    <result property="email" column="email"/>
+  </resultMap>
+
+  <sql id="baseColumns">
+    vp.id, vp.user_id, vp.id_card, vp.gender, vp.birth_date, vp.age,
+    vp.address, vp.emergency_contact, vp.emergency_phone, vp.skills,
+    vp.service_area, vp.available_time, vp.volunteer_status, vp.approve_time,
+    vp.approve_by, vp.service_hours, vp.task_count, vp.average_rating,
+    vp.introduction, vp.photo_url, vp.created_time, vp.updated_time,
+    u.username, u.full_name, u.phone, u.email
+  </sql>
+
+  <select id="findAll" resultMap="VolunteerResultMap">
+    SELECT <include refid="baseColumns"/>
+    FROM volunteer_profile vp
+    INNER JOIN sys_user u ON vp.user_id = u.id
+    WHERE 1=1
+    <if test="status != null and status != ''">
+      AND vp.volunteer_status = #{status}
+    </if>
+    <if test="keyword != null and keyword != ''">
+      AND (u.full_name LIKE CONCAT('%', #{keyword}, '%')
+      OR u.phone LIKE CONCAT('%', #{keyword}, '%')
+      OR vp.skills LIKE CONCAT('%', #{keyword}, '%'))
+    </if>
+    ORDER BY
+      CASE vp.volunteer_status
+        WHEN 'PENDING' THEN 1
+        WHEN 'APPROVED' THEN 2
+        WHEN 'SUSPENDED' THEN 3
+        WHEN 'REJECTED' THEN 4
+      END,
+      vp.created_time DESC
+  </select>
+
+  <select id="findById" resultMap="VolunteerResultMap">
+    SELECT <include refid="baseColumns"/>
+    FROM volunteer_profile vp
+    INNER JOIN sys_user u ON vp.user_id = u.id
+    WHERE vp.id = #{id}
+  </select>
+
+  <select id="findByUserId" resultMap="VolunteerResultMap">
+    SELECT <include refid="baseColumns"/>
+    FROM volunteer_profile vp
+    INNER JOIN sys_user u ON vp.user_id = u.id
+    WHERE vp.user_id = #{userId}
+  </select>
+
+  <insert id="insert" parameterType="VolunteerProfile" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO volunteer_profile (
+      user_id, id_card, gender, birth_date, age, address,
+      emergency_contact, emergency_phone, skills, service_area,
+      available_time, volunteer_status, introduction, photo_url
+    ) VALUES (
+      #{userId}, #{idCard}, #{gender}, #{birthDate}, #{age}, #{address},
+      #{emergencyContact}, #{emergencyPhone}, #{skills}, #{serviceArea},
+      #{availableTime}, 'PENDING', #{introduction}, #{photoUrl}
+    )
+  </insert>
+
+  <update id="update" parameterType="VolunteerProfile">
+    UPDATE volunteer_profile
+    SET id_card = #{idCard},
+        gender = #{gender},
+        birth_date = #{birthDate},
+        age = #{age},
+        address = #{address},
+        emergency_contact = #{emergencyContact},
+        emergency_phone = #{emergencyPhone},
+        skills = #{skills},
+        service_area = #{serviceArea},
+        available_time = #{availableTime},
+        introduction = #{introduction},
+        photo_url = #{photoUrl}
+    WHERE id = #{id}
+  </update>
+
+  <update id="approve">
+    UPDATE volunteer_profile
+    SET volunteer_status = #{status},
+        approve_time = NOW(),
+        approve_by = #{approveBy}
+    WHERE id = #{id}
+  </update>
+
+  <update id="updateServiceStats">
+    UPDATE volunteer_profile
+    SET service_hours = #{serviceHours},
+        task_count = #{taskCount},
+        average_rating = #{averageRating}
+    WHERE user_id = #{userId}
+  </update>
+
+  <select id="countByStatus" resultType="int">
+    SELECT COUNT(*)
+    FROM volunteer_profile
+    WHERE volunteer_status = #{status}
+  </select>
+
+  <select id="existsByUserId" resultType="int">
+    SELECT COUNT(*)
+    FROM volunteer_profile
+    WHERE user_id = #{userId}
+  </select>
+
+  <!-- 统计总志愿者数 -->
+  <select id="countTotal" resultType="long">
+    SELECT COUNT(*) FROM volunteer_profile
+  </select>
+
+  <!-- 统计活跃志愿者数（已通过审核的志愿者） -->
+  <select id="countActive" resultType="long">
+    SELECT COUNT(*)
+    FROM volunteer_profile
+    WHERE volunteer_status = 'APPROVED'
+  </select>
+
+</mapper>

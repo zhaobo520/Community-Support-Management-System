@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.dao.TaskMapper">
+
+  <resultMap id="TaskResultMap" type="TaskInfo">
+    <id property="id" column="id"/>
+    <result property="taskTitle" column="task_title"/>
+    <result property="taskType" column="task_type"/>
+    <result property="elderlyId" column="elderly_id"/>
+    <result property="elderlyName" column="elderly_name"/>
+    <result property="description" column="description"/>
+    <result property="address" column="address"/>
+    <result property="contactPhone" column="contact_phone"/>
+    <result property="scheduledDate" column="scheduled_date"/>
+    <result property="scheduledTime" column="scheduled_time"/>
+    <result property="priority" column="priority"/>
+    <result property="status" column="status"/>
+    <result property="volunteerId" column="volunteer_id"/>
+    <result property="volunteerName" column="volunteer_name"/>
+    <result property="volunteerAvatar" column="volunteer_avatar"/>
+    <result property="claimedTime" column="claimed_time"/>
+    <result property="completedTime" column="completed_time"/>
+    <result property="completionNote" column="completion_note"/>
+    <result property="rating" column="rating"/>
+    <result property="feedback" column="feedback"/>
+    <result property="createdBy" column="created_by"/>
+    <result property="demandId" column="demand_id"/>
+    <result property="createdTime" column="created_time"/>
+    <result property="updatedTime" column="updated_time"/>
+  </resultMap>
+
+  <!-- 带关联需求信息的结果映射 -->
+  <resultMap id="TaskWithDemandResultMap" type="TaskInfo" extends="TaskResultMap">
+    <result property="elderlyPhotoUrl" column="elderly_photo_url"/>
+    <result property="executionPhotos" column="execution_photos"/>
+    <association property="demand" javaType="com.community.domain.Demand">
+      <id column="d_id" property="id"/>
+      <result column="d_title" property="title"/>
+      <result column="d_attachment_url" property="attachmentUrl"/>
+      <result column="d_description" property="description"/>
+      <result column="d_contact_person" property="contactPerson"/>
+    </association>
+  </resultMap>
+
+  <sql id="baseColumns">
+    id, task_title, task_type, elderly_id, elderly_name, description, address, contact_phone, 
+    scheduled_date, scheduled_time, priority, status, volunteer_id, volunteer_name, 
+    claimed_time, completed_time, completion_note, rating, feedback, 
+    created_by, demand_id, created_time, updated_time, latitude, longitude
+  </sql>
+
+  <select id="findAll" resultMap="TaskResultMap">
+    SELECT <include refid="baseColumns"/>
+    FROM task_info
+    WHERE 1=1
+    <if test="taskType != null and taskType != ''">
+      AND task_type = #{taskType}
+    </if>
+    <if test="priority != null and priority != ''">
+      AND priority = #{priority}
+    </if>
+    <if test="status != null and status != ''">
+      AND status = #{status}
+    </if>
+    <if test="keyword != null and keyword != ''">
+      AND (task_title LIKE CONCAT('%', #{keyword}, '%')
+      OR elderly_name LIKE CONCAT('%', #{keyword}, '%')
+      OR address LIKE CONCAT('%', #{keyword}, '%'))
+    </if>
+    ORDER BY 
+      CASE priority
+        WHEN 'URGENT' THEN 1
+        WHEN 'HIGH' THEN 2
+        WHEN 'MEDIUM' THEN 3
+        WHEN 'LOW' THEN 4
+      END,
+      scheduled_date ASC,
+      created_time DESC
+  </select>
+
+  <select id="findPendingTasks" resultMap="TaskWithDemandResultMap">
+    SELECT t.*, 
+           d.id as d_id, d.title as d_title, 
+           d.attachment_url as d_attachment_url, d.description as d_description
+    FROM task_info t
+    LEFT JOIN demand d ON t.demand_id = d.id
+    WHERE t.status = 'PENDING'
+    <if test="taskType != null and taskType != ''">
+      AND t.task_type = #{taskType}
+    </if>
+    ORDER BY 
+      CASE t.priority 
+        WHEN 'URGENT' THEN 1 
+        WHEN 'HIGH' THEN 2 
+        WHEN 'MEDIUM' THEN 3 
+        ELSE 4 
+      END,
+      t.scheduled_date ASC
+  </select>
+
+  <select id="findMyTasks" resultMap="TaskResultMap">
+    SELECT <include refid="baseColumns"/>
+    FROM task_info
+    WHERE volunteer_id = #{volunteerId}
+    <if test="status != null and status != ''">
+      AND status = #{status}
+    </if>
+    ORDER BY scheduled_date DESC, created_time DESC
+  </select>
+
+  <select id="findById" resultMap="TaskWithDemandResultMap">
+    SELECT t.*,
+           COALESCE(e.photo_url, ei.photo_url) as elderly_photo_url,
+           v.avatar as volunteer_avatar,
+           d.id as d_id, d.title as d_title,
+           d.attachment_url as d_attachment_url, d.description as d_description,
+           d.contact_person as d_contact_person
+    FROM task_info t
+    LEFT JOIN elderly_info e ON t.elderly_id = e.id
+    LEFT JOIN demand d ON t.demand_id = d.id
+    LEFT JOIN elderly_info ei ON d.target_id = ei.id
+    LEFT JOIN sys_user v ON t.volunteer_id = v.id
+    WHERE t.id = #{id}
+  </select>
+
+  <insert id="insert" parameterType="TaskInfo" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO task_info (
+      task_title, task_type, 
+      <if test="elderlyId != null">elderly_id, elderly_name,</if>
+      <if test="demandId != null">demand_id,</if>
+      description, address, contact_phone, scheduled_date, scheduled_time, 
+      priority, status, created_by,
+      <if test="volunteerId != null">volunteer_id, volunteer_name, claimed_time,</if>
+      created_time
+    ) VALUES (
+      #{taskTitle}, #{taskType}, 
+      <if test="elderlyId != null">#{elderlyId}, #{elderlyName},</if>
+      <if test="demandId != null">#{demandId},</if>
+      #{description}, #{address}, #{contactPhone}, #{scheduledDate}, #{scheduledTime},
+      #{priority}, #{status}, #{createdBy},
+      <if test="volunteerId != null">#{volunteerId}, #{volunteerName}, NOW(),</if>
+      NOW()
+    )
+  </insert>
+
+  <update id="update" parameterType="TaskInfo">
+    UPDATE task_info
+    SET task_title = #{taskTitle},
+        task_type = #{taskType},
+        elderly_id = #{elderlyId},
+        elderly_name = #{elderlyName},
+        description = #{description},
+        address = #{address},
+        contact_phone = #{contactPhone},
+        scheduled_date = #{scheduledDate},
+        scheduled_time = #{scheduledTime},
+        priority = #{priority}
+    WHERE id = #{id}
+  </update>
+
+  <update id="claimTask">
+    UPDATE task_info
+    SET volunteer_id = #{volunteerId},
+        volunteer_name = #{volunteerName},
+        status = 'CLAIMED',
+        claimed_time = NOW()
+    WHERE id = #{id}
+    AND status = 'PENDING'
+  </update>
+
+  <update id="updateStatus">
+    UPDATE task_info
+    SET status = #{status}
+    WHERE id = #{id}
+  </update>
+
+  <update id="submitCompletion">
+    UPDATE task_info
+    SET status = 'COMPLETED',
+        completed_time = NOW(),
+        completion_note = #{completionNote}
+    WHERE id = #{id}
+  </update>
+
+  <update id="approveTask">
+    UPDATE task_info
+    SET status = 'APPROVED',
+        rating = #{rating},
+        feedback = #{feedback}
+    WHERE id = #{id}
+  </update>
+
+  <select id="countByStatus" resultType="int">
+    SELECT COUNT(*)
+    FROM task_info
+    WHERE status = #{status}
+  </select>
+
+  <select id="countVolunteerTasks" resultType="int">
+    SELECT COUNT(*)
+    FROM task_info
+    WHERE volunteer_id = #{volunteerId}
+    AND status IN ('CLAIMED', 'IN_PROGRESS', 'COMPLETED', 'APPROVED')
+  </select>
+
+  <!-- 按任务类型统计数量 -->
+  <select id="countByTaskType" resultType="map">
+    SELECT task_type AS type, COUNT(*) AS count
+    FROM task_info
+    GROUP BY task_type
+  </select>
+
+  <!-- 统计总任务数 -->
+  <select id="countTotal" resultType="long">
+    SELECT COUNT(*) FROM task_info
+  </select>
+
+  <!-- 统计平均评分 -->
+  <select id="getAverageRating" resultType="double">
+    SELECT COALESCE(AVG(rating), 0) 
+    FROM task_info 
+    WHERE rating IS NOT NULL
+  </select>
+
+  <!-- 统计指定时间范围内的任务数（按状态） -->
+  <select id="countByStatusWithDateRange" resultType="int">
+    SELECT COUNT(*) FROM task_info
+    WHERE status = #{status}
+    <if test="startDate != null">
+      AND created_time >= #{startDate}
+    </if>
+    <if test="endDate != null">
+      AND created_time &lt;= #{endDate}
+    </if>
+  </select>
+
+  <!-- 统计指定时间范围内的总任务数 -->
+  <select id="countTotalWithDateRange" resultType="long">
+    SELECT COUNT(*) FROM task_info
+    WHERE 1=1
+    <if test="startDate != null">
+      AND created_time >= #{startDate}
+    </if>
+    <if test="endDate != null">
+      AND created_time &lt;= #{endDate}
+    </if>
+  </select>
+
+  <!-- 查询志愿者历史任务 -->
+  <select id="findHistoryTasks" resultMap="TaskResultMap">
+    SELECT <include refid="baseColumns"/>
+    FROM task_info
+    WHERE volunteer_id = #{volunteerId}
+    AND status IN ('COMPLETED', 'APPROVED')
+    <if test="startDate != null and startDate != ''">
+      AND completed_time >= #{startDate}
+    </if>
+    <if test="endDate != null and endDate != ''">
+      AND completed_time &lt;= #{endDate}
+    </if>
+    ORDER BY completed_time DESC
+  </select>
+
+  <!-- 统计志愿者某时间段内的服务次数 -->
+  <select id="countServiceTimes" resultType="int">
+    SELECT COUNT(*)
+    FROM task_info
+    WHERE volunteer_id = #{volunteerId}
+    AND status IN ('COMPLETED', 'APPROVED')
+    <if test="startDate != null and startDate != ''">
+      AND completed_time >= #{startDate}
+    </if>
+    <if test="endDate != null and endDate != ''">
+      AND completed_time &lt;= #{endDate}
+    </if>
+  </select>
+
+  <!-- 统计志愿者某时间段内的平均评分 -->
+  <select id="getAverageRatingByVolunteer" resultType="double">
+    SELECT COALESCE(AVG(rating), 0)
+    FROM task_info
+    WHERE volunteer_id = #{volunteerId}
+    AND status = 'APPROVED'
+    AND rating IS NOT NULL
+    <if test="startDate != null and startDate != ''">
+      AND completed_time >= #{startDate}
+    </if>
+    <if test="endDate != null and endDate != ''">
+      AND completed_time &lt;= #{endDate}
+    </if>
+  </select>
+
+  <!-- 查询志愿者在指定日期和时间段的任务（用于排班冲突检测） -->
+  <select id="findTasksByVolunteerAndTime" resultMap="TaskResultMap">
+    SELECT <include refid="baseColumns"/>
+    FROM task_info
+    WHERE volunteer_id = #{volunteerId}
+    AND scheduled_date = #{scheduledDate}
+    AND scheduled_time = #{timeSlot}
+    AND status NOT IN ('CANCELLED', 'REJECTED')
+    ORDER BY created_time DESC
+  </select>
+
+  <update id="releaseTask">
+    UPDATE task_info
+    SET volunteer_id = NULL,
+        volunteer_name = NULL,
+        status = 'PENDING',
+        claimed_time = NULL
+    WHERE id = #{id}
+    AND status IN ('CLAIMED', 'IN_PROGRESS')
+  </update>
+
+  <!-- 更新执行照片 -->
+  <update id="updateExecutionPhotos">
+    UPDATE task_info
+    SET execution_photos = #{executionPhotos}
+    WHERE id = #{id}
+  </update>
+
+</mapper>

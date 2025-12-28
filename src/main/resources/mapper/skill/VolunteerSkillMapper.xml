@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.community.dao.VolunteerSkillMapper">
+
+    <resultMap id="VolunteerSkillResultMap" type="com.community.domain.VolunteerSkill">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="skillId" column="skill_id"/>
+        <result property="proficiencyLevel" column="proficiency_level"/>
+        <result property="yearsExperience" column="years_experience"/>
+        <result property="certification" column="certification"/>
+        <result property="createdAt" column="created_at"/>
+        <association property="skill" javaType="com.community.domain.Skill">
+            <id property="id" column="skill_id"/>
+            <result property="skillName" column="skill_name"/>
+            <result property="skillCode" column="skill_code"/>
+            <result property="category" column="category"/>
+            <result property="icon" column="icon"/>
+        </association>
+    </resultMap>
+
+    <select id="findByUserId" resultMap="VolunteerSkillResultMap">
+        SELECT vs.*, s.skill_name, s.skill_code, s.category, s.icon
+        FROM volunteer_skill vs
+        LEFT JOIN skill s ON vs.skill_id = s.id
+        WHERE vs.user_id = #{userId}
+        ORDER BY s.category, s.sort_order
+    </select>
+
+    <select id="findBySkillId" resultMap="VolunteerSkillResultMap">
+        SELECT vs.*, s.skill_name, s.skill_code, s.category, s.icon
+        FROM volunteer_skill vs
+        LEFT JOIN skill s ON vs.skill_id = s.id
+        WHERE vs.skill_id = #{skillId}
+    </select>
+
+    <insert id="insert" parameterType="com.community.domain.VolunteerSkill">
+        INSERT INTO volunteer_skill (user_id, skill_id, proficiency_level, years_experience, certification)
+        VALUES (#{userId}, #{skillId}, #{proficiencyLevel}, #{yearsExperience}, #{certification})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM volunteer_skill
+        WHERE user_id = #{userId} AND skill_id = #{skillId}
+    </delete>
+
+    <update id="updateProficiency" parameterType="com.community.domain.VolunteerSkill">
+        UPDATE volunteer_skill
+        SET proficiency_level = #{proficiencyLevel},
+            years_experience = #{yearsExperience},
+            certification = #{certification}
+        WHERE user_id = #{userId} AND skill_id = #{skillId}
+    </update>
+
+    <insert id="batchInsert">
+        INSERT INTO volunteer_skill (user_id, skill_id, proficiency_level, years_experience)
+        VALUES
+        <foreach collection="skills" item="item" separator=",">
+            (#{item.userId}, #{item.skillId}, #{item.proficiencyLevel}, #{item.yearsExperience})
+        </foreach>
+    </insert>
+
+    <delete id="deleteByUserId">
+        DELETE FROM volunteer_skill WHERE user_id = #{userId}
+    </delete>
+
+</mapper>

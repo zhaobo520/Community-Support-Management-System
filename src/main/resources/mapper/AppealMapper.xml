@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.dao.AppealMapper">
+
+  <resultMap id="AppealResultMap" type="com.community.domain.Appeal">
+    <id column="id" property="id"/>
+    <result column="user_id" property="userId"/>
+    <result column="user_role" property="userRole"/>
+    <result column="username" property="username"/>
+    <result column="phone" property="phone"/>
+    <result column="appeal_type" property="appealType"/>
+    <result column="description" property="description"/>
+    <result column="attachment" property="attachment"/>
+    <result column="status" property="status"/>
+    <result column="response" property="response"/>
+    <result column="responded_by" property="respondedBy"/>
+    <result column="responded_at" property="respondedAt"/>
+    <result column="created_at" property="createdAt"/>
+    <result column="updated_at" property="updatedAt"/>
+    <result column="responded_by_name" property="respondedByName"/>
+  </resultMap>
+
+  <sql id="baseColumns">
+    id, user_id, user_role, username, phone, appeal_type, description, attachment,
+    status, response, responded_by, responded_at, created_at, updated_at
+  </sql>
+
+  <insert id="insert" parameterType="com.community.domain.Appeal" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO t_appeal (user_id, user_role, username, phone, appeal_type, description, attachment,
+                          status, created_at, updated_at)
+    VALUES (#{userId}, #{userRole}, #{username}, #{phone}, #{appealType}, #{description}, #{attachment},
+            'PENDING', NOW(), NOW())
+  </insert>
+
+  <update id="update" parameterType="com.community.domain.Appeal">
+    UPDATE t_appeal
+    SET user_role = #{userRole},
+        username = #{username},
+        phone = #{phone},
+        appeal_type = #{appealType},
+        description = #{description},
+        attachment = #{attachment},
+        status = #{status},
+        response = #{response},
+        responded_by = #{respondedBy},
+        responded_at = #{respondedAt},
+        updated_at = NOW()
+    WHERE id = #{id}
+  </update>
+
+  <delete id="delete" parameterType="long">
+    DELETE FROM t_appeal WHERE id = #{id}
+  </delete>
+
+  <select id="selectById" parameterType="long" resultMap="AppealResultMap">
+    SELECT a.*, u.full_name as responded_by_name
+    FROM t_appeal a
+    LEFT JOIN sys_user u ON a.responded_by = u.id
+    WHERE a.id = #{id}
+  </select>
+
+  <select id="selectAll" resultMap="AppealResultMap">
+    SELECT a.*, u.full_name as responded_by_name
+    FROM t_appeal a
+    LEFT JOIN sys_user u ON a.responded_by = u.id
+    ORDER BY a.created_at DESC
+  </select>
+
+  <select id="selectByUserId" parameterType="long" resultMap="AppealResultMap">
+    SELECT a.*, u.full_name as responded_by_name
+    FROM t_appeal a
+    LEFT JOIN sys_user u ON a.responded_by = u.id
+    WHERE a.user_id = #{userId}
+    ORDER BY a.created_at DESC
+  </select>
+
+  <select id="selectByStatus" parameterType="string" resultMap="AppealResultMap">
+    SELECT a.*, u.full_name as responded_by_name
+    FROM t_appeal a
+    LEFT JOIN sys_user u ON a.responded_by = u.id
+    WHERE a.status = #{status}
+    ORDER BY a.created_at DESC
+  </select>
+
+  <select id="selectByUserRole" parameterType="string" resultMap="AppealResultMap">
+    SELECT a.*, u.full_name as responded_by_name
+    FROM t_appeal a
+    LEFT JOIN sys_user u ON a.responded_by = u.id
+    WHERE a.user_role = #{userRole}
+    ORDER BY a.created_at DESC
+  </select>
+
+  <select id="countByStatus" parameterType="string" resultType="int">
+    SELECT COUNT(*) FROM t_appeal WHERE status = #{status}
+  </select>
+
+</mapper>

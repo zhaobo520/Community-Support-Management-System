@@ -1,12 +1,226 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>社区帮扶管理系统学习资料</title>
+  <title>社区关爱协同平台</title>
+  <link href="css/gov-theme.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Microsoft YaHei', sans-serif;
+      color: #333;
+      /* 保持 gov-theme 的背景，这里微调布局 */
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    .shell {
+      width: 100%;
+      max-width: 1100px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 8px;
+      box-shadow: 0 20px 60px rgba(183, 28, 28, 0.1);
+      padding: 60px;
+      position: relative;
+      overflow: hidden;
+      border-top: 5px solid var(--gov-red);
+    }
+    /* 背景装饰：红色飘带/波纹 */
+    .shell:before {
+      content: "";
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(183, 28, 28, 0.05) 0%, transparent 70%);
+      top: -150px;
+      right: -100px;
+      z-index: 0;
+    }
+    .shell:after {
+      content: "";
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 215, 0, 0.05) 0%, transparent 70%);
+      bottom: -100px;
+      left: -80px;
+      z-index: 0;
+    }
+    h1 {
+      margin: 0;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--gov-red-dark);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    /* 党徽/国徽风格装饰 */
+    h1::before {
+      content: '★';
+      color: var(--gov-yellow);
+      font-size: 40px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    p.subtitle {
+      margin: 15px 0 40px;
+      font-size: 16px;
+      color: #666;
+      line-height: 1.6;
+      max-width: 800px;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      position: relative;
+      z-index: 1;
+    }
+    /* 覆盖 gov-card 的部分样式以适应首页 */
+    .entry-card {
+      background: #fff;
+      border-radius: 4px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #eee;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .entry-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(183, 28, 28, 0.15);
+      border-color: var(--gov-red-light);
+    }
+    .entry-card h2 {
+      margin: 0 0 15px;
+      font-size: 20px;
+      color: #333;
+      border-left: 4px solid var(--gov-red);
+      padding-left: 12px;
+    }
+    .entry-card p {
+      flex: 1;
+      margin: 0 0 25px;
+      color: #666;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .entry-card button {
+      border: none;
+      border-radius: 4px;
+      padding: 12px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: linear-gradient(135deg, var(--gov-red) 0%, var(--gov-red-light) 100%);
+    }
+    .entry-card button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(183, 28, 28, 0.3);
+    }
+    /* 不同的按钮微调 */
+    .btn-admin { } /* 默认红色 */
+    .btn-vol   { filter: hue-rotate(10deg); } /* 稍变色，保持统一感 */
+    .btn-help  { filter: hue-rotate(20deg); } 
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      background: rgba(183, 28, 28, 0.08);
+      color: var(--gov-red);
+      margin-bottom: 20px;
+      font-weight: 600;
+      border: 1px solid rgba(183, 28, 28, 0.2);
+    }
+    .hero-stat {
+      display: flex;
+      gap: 40px;
+      margin-top: 50px;
+      color: #555;
+      font-size: 14px;
+      border-top: 1px solid #eee;
+      padding-top: 30px;
+    }
+    .hero-stat div {
+      flex: 1;
+      text-align: center;
+      border-right: 1px solid #eee;
+    }
+    .hero-stat div:last-child {
+      border-right: none;
+    }
+    .hero-stat span {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--gov-red);
+      display: block;
+      margin-bottom: 5px;
+      font-family: 'Arial', sans-serif;
+    }
+    @media (max-width: 640px) {
+      .shell { padding: 30px 20px; }
+      h1 { font-size: 24px; }
+      .hero-stat { flex-direction: column; gap: 20px; }
+      .hero-stat div { border-right: none; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+    }
+  </style>
 </head>
 <body>
-  <h1>社区帮扶管理系统学习资料</h1>
-  <p>这是用于学习交流的项目页面。</p>
-  <p>源码、文档和资料请查看本仓库内容。</p>
+<div class="shell fade-in-up">
+  <span class="badge">智慧社区 · 党建引领 · 协同治理</span>
+  <h1>社区关爱协同平台</h1>
+  <p class="subtitle">
+    深入贯彻智慧社区建设理念，构建共建共治共享的基层治理新格局。
+    <br>请根据您的身份选择相应的登录入口。
+  </p>
+
+  <div class="cards">
+    <div class="entry-card">
+      <h2>社区管理者</h2>
+      <p>统筹辖区关爱资源，审核志愿者资质，全流程跟踪服务进度，实现社区治理数据化、精细化。</p>
+      <button class="btn-admin" onclick="location.href='user/admin/login'">管理者登录</button>
+    </div>
+    <div class="entry-card">
+      <h2>党员志愿者</h2>
+      <p>在线认领关爱微心愿，记录志愿服务时长，发挥党员先锋模范作用，传递社区温暖。</p>
+      <button class="btn-vol" onclick="location.href='user/volunteer/login'">志愿者登录</button>
+    </div>
+    <div class="entry-card">
+      <h2>居民/家属</h2>
+      <p>提交个性化关爱需求，查看亲属关怀计划与服务记录，一键反馈评价，享受贴心服务。</p>
+      <button class="btn-help" onclick="location.href='user/family/login'">服务对象登录</button>
+    </div>
+  </div>
+
+  <div class="hero-stat">
+    <div>
+      <span>1280+</span>
+      累计服务时长 (小时)
+    </div>
+    <div>
+      <span>560</span>
+      已完成关爱任务
+    </div>
+    <div>
+      <span>99%</span>
+      群众满意度
+    </div>
+  </div>
+</div>
 </body>
 </html>
+

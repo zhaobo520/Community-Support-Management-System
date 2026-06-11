@@ -21,36 +21,10 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.15);
       position: relative;
     }
-    .gov-header::before {
-      content: '';
-      position: absolute;
-      left: 20px;
-      color: #B71C1C;
-      font-size: 24px;
-    }
-    .gov-header h1 {
-      color: white;
-      font-size: 20px;
-      font-weight: 600;
-      margin-left: 50px;
-      letter-spacing: 1px;
-      margin: 0;
-    }
-    .gov-header .actions {
-      display: flex;
-      gap: 20px;
-    }
-    .gov-header .actions a {
-      color: white;
-      text-decoration: none;
-      font-size: 14px;
-      transition: opacity 0.3s;
-      padding: 6px 16px;
-      border-radius: 2px;
-    }
-    .gov-header .actions a:hover {
-      background: rgba(255,255,255,0.2);
-    }
+    .gov-header h1 { color: white; font-size: 20px; font-weight: 600; margin: 0; }
+    .gov-header .actions { display: flex; gap: 20px; }
+    .gov-header .actions a { color: white; text-decoration: none; font-size: 14px; transition: opacity 0.3s; padding: 6px 16px; border-radius: 2px; }
+    .gov-header .actions a:hover { background: rgba(255,255,255,0.2); }
     .container {
       max-width: 800px;
       margin: 40px auto;
@@ -60,138 +34,35 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       border: 1px solid #E0E0E0;
     }
-    .header {
-      text-align: center;
-      margin-bottom: 32px;
-      padding-bottom: 20px;
-      border-bottom: 3px solid #D32F2F;
+    .header { text-align: center; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 3px solid #D32F2F; }
+    .header h1 { font-size: 28px; color: #212121; margin-bottom: 8px; }
+    .header p { color: #666; font-size: 14px; }
+    .form-section { margin-bottom: 32px; }
+    .section-title { font-size: 18px; color: #212121; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #E0E0E0; font-weight: 600; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { display: block; font-size: 14px; color: #424242; margin-bottom: 8px; font-weight: 600; }
+    .form-group label .required { color: #D32F2F; margin-left: 4px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 10px 14px; border: 1px solid #E0E0E0; border-radius: 2px; font-size: 14px; transition: border-color 0.3s;
     }
-    .header h1 {
-      font-size: 28px;
-      color: #212121;
-      margin-bottom: 8px;
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none; border-color: #D32F2F; box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.1);
     }
-    .header p {
-      color: #666;
-      font-size: 14px;
-    }
-    .back-link {
-      display: inline-block;
-      margin-bottom: 20px;
-      color: #D32F2F;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .form-section {
-      margin-bottom: 32px;
-    }
-    .section-title {
-      font-size: 18px;
-      color: #212121;
-      margin-bottom: 16px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid #E0E0E0;
-      font-weight: 600;
-    }
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-    .form-group {
-      margin-bottom: 20px;
-    }
-    .form-group.full {
-      grid-column: 1 / -1;
-    }
-    .form-group label {
-      display: block;
-      font-size: 14px;
-      color: #424242;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-    .form-group label .required {
-      color: #D32F2F;
-      margin-left: 4px;
-    }
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1px solid #E0E0E0;
-      border-radius: 2px;
-      font-size: 14px;
-      transition: border-color 0.3s;
-    }
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: #D32F2F;
-      box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.1);
-    }
-    .form-group textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-    .radio-group {
-      display: flex;
-      gap: 20px;
-    }
-    .radio-group label {
-      display: flex;
-      align-items: center;
-      font-weight: normal;
-      cursor: pointer;
-    }
-    .radio-group input[type="radio"] {
-      width: auto;
-      margin-right: 8px;
-    }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .radio-group { display: flex; gap: 20px; }
+    .radio-group label { display: flex; align-items: center; font-weight: normal; cursor: pointer; }
+    .radio-group input[type="radio"] { width: auto; margin-right: 8px; }
     .error {
-      background: rgba(211,47,47,0.1);
-      border-left: 4px solid #D32F2F;
-      padding: 12px 16px;
-      border-radius: 2px;
-      margin-bottom: 20px;
-      color: #B71C1C;
-      font-size: 14px;
+      background: rgba(211,47,47,0.1); border-left: 4px solid #D32F2F; padding: 12px 16px; border-radius: 2px; margin-bottom: 20px; color: #B71C1C; font-size: 14px;
     }
-    .form-actions {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      margin-top: 32px;
-    }
-    .btn {
-      padding: 10px 32px;
-      border: 1px solid;
-      border-radius: 2px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .btn-submit {
-      background: white;
-      color: #D32F2F;
-      border-color: #D32F2F;
-    }
-    .btn-submit:hover {
-      background: #D32F2F;
-      color: white;
-    }
-    .btn-cancel {
-      background: white;
-      color: #666;
-      border-color: #E0E0E0;
-    }
-    .btn-cancel:hover {
-      background: #F5F5F5;
-    }
+    .form-actions { display: flex; gap: 12px; justify-content: center; margin-top: 32px; }
+    .btn { padding: 10px 32px; border: 1px solid; border-radius: 2px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+    .btn-submit { background: white; color: #D32F2F; border-color: #D32F2F; }
+    .btn-submit:hover { background: #D32F2F; color: white; }
+    .btn-cancel { background: white; color: #666; border-color: #E0E0E0; }
+    .btn-cancel:hover { background: #F5F5F5; }
   </style>
 </head>
 <body>
@@ -206,7 +77,7 @@
 <div class="container">
   <div class="header">
     <h1>编辑关爱对象</h1>
-    <p>修改关爱对象的信息</p>
+    <p>修改关爱对象基础信息</p>
   </div>
 
   <c:if test="${not empty error}">
@@ -216,9 +87,9 @@
   <form action="${pageContext.request.contextPath}/admin/elderly/edit" method="post">
     <input type="hidden" name="id" value="${elderlyInfo.id}"/>
     <input type="hidden" name="status" value="${elderlyInfo.status}"/>
-    
+
     <div class="form-section">
-      <div class="section-title">基本信息</div>
+      <div class="section-title">基础信息</div>
       <div class="form-row">
         <div class="form-group">
           <label>姓名<span class="required">*</span></label>
@@ -261,28 +132,16 @@
       </div>
     </div>
 
-    <!-- Photo Upload Section -->
     <div class="form-section">
       <div class="section-title">关爱对象照片</div>
-      <!-- 显示已有照片 -->
-      <c:if test="${not empty elderlyInfo.photoUrl}">
-        <div style="margin-bottom: 20px;">
-          <p style="color: #666; font-size: 14px; margin-bottom: 10px;">当前照片：</p>
-          <div style="display: inline-block; position: relative;">
-            <c:choose>
-              <c:when test="${fn:startsWith(elderlyInfo.photoUrl, pageContext.request.contextPath)}">
-                <img src="${elderlyInfo.photoUrl}" alt="关爱对象照片"
-                     style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 1px solid #E0E0E0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-              </c:when>
-              <c:otherwise>
-                <img src="${pageContext.request.contextPath}${elderlyInfo.photoUrl}" alt="关爱对象照片"
-                     style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 1px solid #E0E0E0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-              </c:otherwise>
-            </c:choose>
-          </div>
-          <p style="color: #999; font-size: 12px; margin-top: 8px;">如需更换照片，请在下方上传新照片</p>
+      <div style="margin-bottom: 20px;" id="currentPhotoContainer">
+        <p style="color: #666; font-size: 14px; margin-bottom: 10px;">当前照片：</p>
+        <div style="display: inline-block; position: relative;">
+          <img id="currentPhotoPreview" src="${not empty elderlyInfo.photoUrl ? pageContext.request.contextPath.concat(elderlyInfo.photoUrl) : ''}" alt="关爱对象照片"
+               style="display:${not empty elderlyInfo.photoUrl ? 'block' : 'none'};max-width: 200px; max-height: 200px; border-radius: 8px; border: 1px solid #E0E0E0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); object-fit:cover;">
         </div>
-      </c:if>
+        <p id="currentPhotoHint" style="color: #999; font-size: 12px; margin-top: 8px; display:${not empty elderlyInfo.photoUrl ? 'block' : 'none'};">如需更换照片，请在下方上传新照片</p>
+      </div>
       <%@ include file="/WEB-INF/views/common/file_upload_component.jsp" %>
       <input type="hidden" id="uploadType" value="elderly-photo">
       <input type="hidden" name="photoUrl" id="photoUrl" value="${elderlyInfo.photoUrl}">
@@ -305,7 +164,6 @@
           </select>
         </div>
       </div>
-
       <div class="form-row">
         <div class="form-group">
           <label>是否独居</label>
@@ -357,7 +215,6 @@
 
 <script>
 function beforeSubmit() {
-  // Get uploaded photo URL and set to hidden field
   var photoUrls = getUploadedFileUrls();
   if (photoUrls) {
     document.getElementById('photoUrl').value = photoUrls;

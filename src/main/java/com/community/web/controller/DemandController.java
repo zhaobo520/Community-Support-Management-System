@@ -3,8 +3,10 @@ package com.community.web.controller;
 import com.community.domain.Demand;
 import com.community.domain.ElderlyInfo;
 import com.community.domain.User;
+import com.community.domain.VolunteerProfile;
 import com.community.service.DemandService;
 import com.community.service.ElderlyService;
+import com.community.service.VolunteerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -32,6 +34,9 @@ public class DemandController {
 
     @Resource
     private ElderlyService elderlyService;
+
+    @Resource
+    private VolunteerService volunteerService;
 
     /**
      * 家属需求列表页面
@@ -67,6 +72,10 @@ public class DemandController {
         List<ElderlyInfo> elderlyList = elderlyService.findApprovedByFamilyUserId(currentUser.getId());
         model.addAttribute("elderlyList", elderlyList);
         model.addAttribute("currentUser", currentUser);
+
+        // 获取已审核通过的志愿者列表，供意向选择
+        List<VolunteerProfile> volunteerList = volunteerService.findAll("APPROVED", null);
+        model.addAttribute("volunteerList", volunteerList);
 
         // 如果指定了关爱人员ID，预选该人员
         if (elderlyId != null) {
@@ -156,9 +165,13 @@ public class DemandController {
             return "redirect:/demand/family/detail/" + id;
         }
 
+        // 获取已审核通过的志愿者列表，供意向选择
+        List<VolunteerProfile> volunteerList = volunteerService.findAll("APPROVED", null);
+        model.addAttribute("volunteerList", volunteerList);
+
         model.addAttribute("demand", demand);
         model.addAttribute("currentUser", currentUser);
-        
+
         return "demand/family_edit";
     }
 

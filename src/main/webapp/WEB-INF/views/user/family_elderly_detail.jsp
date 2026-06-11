@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -277,7 +277,7 @@
         <c:when test="${not empty elderlyInfo.photoUrl}">
           <c:choose>
             <c:when test="${fn:startsWith(elderlyInfo.photoUrl, pageContext.request.contextPath)}">
-              <img src="${elderlyInfo.photoUrl}" alt="${elderlyInfo.name}">
+              <img src="${pageContext.request.contextPath}${elderlyInfo.photoUrl}" alt="${elderlyInfo.name}">
             </c:when>
             <c:otherwise>
               <img src="${pageContext.request.contextPath}${elderlyInfo.photoUrl}" alt="${elderlyInfo.name}">
@@ -326,7 +326,7 @@
         <c:when test="${not empty elderlyInfo.photoUrl}">
           <c:choose>
             <c:when test="${fn:startsWith(elderlyInfo.photoUrl, pageContext.request.contextPath)}">
-              <img src="${elderlyInfo.photoUrl}" alt="${elderlyInfo.name}的照片">
+              <img src="${pageContext.request.contextPath}${elderlyInfo.photoUrl}" alt="${elderlyInfo.name}的照片">
             </c:when>
             <c:otherwise>
               <img src="${pageContext.request.contextPath}${elderlyInfo.photoUrl}" alt="${elderlyInfo.name}的照片">
@@ -449,3 +449,4 @@
 </div>
 </body>
 </html>
+

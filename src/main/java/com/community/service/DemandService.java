@@ -41,6 +41,11 @@ public interface DemandService {
     List<Demand> findPendingDemands();
 
     /**
+     * 根据状态查询需求
+     */
+    List<Demand> findByStatus(String status);
+
+    /**
      * 查询已通过的需求
      */
     List<Demand> findApprovedDemands();

@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
@@ -222,7 +222,7 @@
         <c:when test="${not empty currentUser.avatar}">
           <c:choose>
             <c:when test="${fn:startsWith(currentUser.avatar, pageContext.request.contextPath)}">
-              <img src="${currentUser.avatar}" alt="" />
+              <img src="${pageContext.request.contextPath}${currentUser.avatar}" alt="" />
             </c:when>
             <c:otherwise>
               <img src="${pageContext.request.contextPath}${currentUser.avatar}" alt="" />
@@ -311,7 +311,7 @@
         <input type="email" name="email" style="width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:2px;font-size:14px;"/>
       </div>
       <div style="display:flex;gap:12px;">
-        <button type="button" onclick="hideAddAdminModal()" style="flex:1;padding:12px;background:#f5f5f5;color:#666;border:none;border-radius:2px;font-weight:700;cursor:pointer;">取消</button>
+        <button type="button" onclick="hideAddAdminModal()" style="flex:1;padding:12px;background:#FAF5F0;color:#666;border:none;border-radius:2px;font-weight:700;cursor:pointer;">取消</button>
         <button type="submit" style="flex:1;padding:12px;background:#D32F2F;color:#fff;border:none;border-radius:2px;font-weight:700;cursor:pointer;">确定添加</button>
       </div>
     </form>
@@ -337,3 +337,5 @@ document.getElementById('addAdminModal').addEventListener('click', function(e) {
 </script>
 </body>
 </html>
+
+

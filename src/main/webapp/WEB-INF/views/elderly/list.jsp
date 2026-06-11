@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -195,7 +195,7 @@
     .elderly-card.urgent::before { background: #B71C1C; }
     .elderly-card.high::before { background: #D32F2F; }
     .elderly-card.medium::before { background: #FF5252; }
-    .elderly-card.low::before { background: #4CAF50; }
+    .elderly-card.low::before { background: #D32F2F; }
 
     .card-header {
       display: flex;
@@ -256,7 +256,7 @@
     .tag.urgent { background: rgba(183,28,28,0.1); color: #B71C1C; border-color: rgba(183,28,28,0.3); }
     .tag.high { background: rgba(211,47,47,0.1); color: #D32F2F; border-color: rgba(211,47,47,0.3); }
     .tag.medium { background: rgba(255,82,82,0.1); color: #FF5252; border-color: rgba(255,82,82,0.3); }
-    .tag.low { background: rgba(76,175,80,0.1); color: #4CAF50; border-color: rgba(76,175,80,0.3); }
+    .tag.low { background: rgba(211, 47, 47,0.1); color: #D32F2F; border-color: rgba(211, 47, 47,0.3); }
     .tag.alone { background: rgba(211,47,47,0.1); color: #D32F2F; border-color: rgba(211,47,47,0.3); }
 
     .card-details {
@@ -304,12 +304,12 @@
 
     .btn-edit {
       background: white;
-      color: #4CAF50;
-      border-color: #4CAF50;
+      color: #D32F2F;
+      border-color: #D32F2F;
     }
 
     .btn-edit:hover {
-      background: #4CAF50;
+      background: #D32F2F;
       color: white;
     }
 
@@ -386,7 +386,7 @@
               <c:when test="${not empty elderly.photoUrl}">
                 <c:choose>
                   <c:when test="${fn:startsWith(elderly.photoUrl, pageContext.request.contextPath)}">
-                    <img src="${elderly.photoUrl}" alt="${elderly.name}">
+                    <img src="${pageContext.request.contextPath}${elderly.photoUrl}" alt="${elderly.name}">
                   </c:when>
                   <c:otherwise>
                     <img src="${pageContext.request.contextPath}${elderly.photoUrl}" alt="${elderly.name}">
@@ -462,3 +462,5 @@ function deleteElderly(id) {
 </script>
 </body>
 </html>
+
+

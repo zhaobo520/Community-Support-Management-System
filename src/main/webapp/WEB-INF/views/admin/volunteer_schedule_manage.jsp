@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
@@ -120,7 +120,7 @@
         td {
             cursor: pointer;
             transition: all 0.3s;
-            background: #fafafa;
+            background: #FAF5F0;
         }
         td:hover {
             background: #FFEBEE;
@@ -134,21 +134,38 @@
             font-size: 24px;
             display: block;
         }
+        td.admin-standby {
+            background: #388E3C;
+            color: white;
+        }
+        td.admin-standby::after {
+            content: '◎';
+            font-size: 24px;
+            display: block;
+        }
         /* 志愿者状态处于背景层，用不同颜色显示 */
         td.volunteer-available {
-            background: #e8f5e9 !important; /* 淡绿色背景 */
+            background: #FBE9E7 !important; /* 淡红色背景=可服务 */
         }
         td.volunteer-busy {
-            background: #ffebee !important; /* 淡红色背景 */
+            background: #424242 !important; /* 深灰色背景=忙碌 */
+            color: #fff;
+        }
+        td.volunteer-standby {
+            background: #C8E6C9 !important; /* 淡绿色背景=备班 */
         }
         /* 管理员指派的在前景层，会覆盖背景 */
-        td.selected.volunteer-available::before,
-        td.selected.volunteer-busy::before {
-            content: '';
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            font-size: 12px;
+        td.selected.volunteer-available,
+        td.selected.volunteer-busy,
+        td.selected.volunteer-standby {
+            background: #D32F2F !important;
+            color: white;
+        }
+        td.admin-standby.volunteer-available,
+        td.admin-standby.volunteer-busy,
+        td.admin-standby.volunteer-standby {
+            background: #388E3C !important;
+            color: white;
         }
         td {
             position: relative;
@@ -164,11 +181,11 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             z-index: 1000;
             max-width: 380px;
-            border: 2px solid #D32F2F;
+            border: 2px solid #1976D2;
         }
         .summary-widget h3 {
             font-size: 14px;
-            color: #D32F2F;
+            color: #1976D2;
             margin-bottom: 10px;
             font-weight: bold;
         }
@@ -179,15 +196,15 @@
             font-size: 10px;
         }
         .summary-grid .header {
-            background: #FFEBEE;
+            background: #E3F2FD;
             padding: 5px 3px;
             text-align: center;
             border-radius: 2px;
             font-weight: 600;
-            color: #D32F2F;
+            color: #1976D2;
         }
         .summary-grid .cell {
-            background: #FAF5F0;
+            background: #FAFAFA;
             padding: 8px 3px;
             text-align: center;
             border-radius: 2px;
@@ -205,12 +222,20 @@
             cursor: pointer;
             position: relative;
         }
-        .summary-grid .cell.has-volunteer:hover::after {
+        .summary-grid .cell.has-standby {
+            background: #FFA000;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+        }
+        .summary-grid .cell.has-volunteer:hover::after,
+        .summary-grid .cell.has-standby:hover::after {
             content: attr(data-volunteers);
             position: absolute;
             top: -5px;
             right: 105%;
-            background: #333;
+            background: #1976D2;
             color: white;
             padding: 6px 10px;
             border-radius: 2px;
@@ -304,47 +329,50 @@
         <div class="header">上午</div>
         <c:forEach var="day" begin="1" end="7">
             <c:set var="key" value="${day}_MORNING"/>
+            <c:set var="entry" value="${volunteerSummary[key]}"/>
             <c:choose>
-                <c:when test="${not empty volunteerSummary[key]}">
-                    <c:set var="names" value="${String.join(', ', volunteerSummary[key])}"/>
-                    <div class="cell has-volunteer" data-volunteers="${names}">
-                        ${volunteerSummary[key].size()}人
-                    </div>
+                <c:when test="${entry.status == 'available'}">
+                    <div class="cell has-volunteer" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
+                </c:when>
+                <c:when test="${entry.status == 'standby'}">
+                    <div class="cell has-standby" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
                 </c:when>
                 <c:otherwise>
-                    <div class="cell">-</div>
+                    <div class="cell" data-summary-key="${key}">-</div>
                 </c:otherwise>
             </c:choose>
         </c:forEach>
-        
+
         <div class="header">下午</div>
         <c:forEach var="day" begin="1" end="7">
             <c:set var="key" value="${day}_AFTERNOON"/>
+            <c:set var="entry" value="${volunteerSummary[key]}"/>
             <c:choose>
-                <c:when test="${not empty volunteerSummary[key]}">
-                    <c:set var="names" value="${String.join(', ', volunteerSummary[key])}"/>
-                    <div class="cell has-volunteer" data-volunteers="${names}">
-                        ${volunteerSummary[key].size()}人
-                    </div>
+                <c:when test="${entry.status == 'available'}">
+                    <div class="cell has-volunteer" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
+                </c:when>
+                <c:when test="${entry.status == 'standby'}">
+                    <div class="cell has-standby" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
                 </c:when>
                 <c:otherwise>
-                    <div class="cell">-</div>
+                    <div class="cell" data-summary-key="${key}">-</div>
                 </c:otherwise>
             </c:choose>
         </c:forEach>
-        
+
         <div class="header">晚上</div>
         <c:forEach var="day" begin="1" end="7">
             <c:set var="key" value="${day}_EVENING"/>
+            <c:set var="entry" value="${volunteerSummary[key]}"/>
             <c:choose>
-                <c:when test="${not empty volunteerSummary[key]}">
-                    <c:set var="names" value="${String.join(', ', volunteerSummary[key])}"/>
-                    <div class="cell has-volunteer" data-volunteers="${names}">
-                        ${volunteerSummary[key].size()}人
-                    </div>
+                <c:when test="${entry.status == 'available'}">
+                    <div class="cell has-volunteer" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
+                </c:when>
+                <c:when test="${entry.status == 'standby'}">
+                    <div class="cell has-standby" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
                 </c:when>
                 <c:otherwise>
-                    <div class="cell">-</div>
+                    <div class="cell" data-summary-key="${key}">-</div>
                 </c:otherwise>
             </c:choose>
         </c:forEach>
@@ -368,10 +396,15 @@
     </div>
 
     <div class="hint">
-        点击格子为该志愿者指派排班，志愿者需确认后生效。
-        <span style="color: #4caf50;">■</span> 淡绿色 = 志愿者自己标记为可服务；
-        <span style="color: #f44336;">■</span> 淡红色 = 志愿者标记为忙碌；
-        <span style="color: #D32F2F;">■</span> 红色 = 管理员已指派
+        点击格子为该志愿者指派排班（红色=可服务，绿色=备班），<strong style="color:#D32F2F;">需志愿者同意后才会显示到右上角值班汇总中</strong>。再次点击切换状态，第三次点击取消指派。
+        <br>
+        志愿者自己标记的状态为背景色显示（无须管理员审核，志愿者可随时修改）；管理员指派的状态为前景色（覆盖背景）。
+        <br>
+        <span style="display:inline-block;width:14px;height:14px;background:#FBE9E7;border:1px solid #ccc;vertical-align:middle;margin-right:4px;"></span> 淡红色 = 志愿者自己标记为可服务；
+        <span style="display:inline-block;width:14px;height:14px;background:#424242;border:1px solid #ccc;vertical-align:middle;margin-right:4px;"></span> 深灰色 = 志愿者标记为忙碌；
+        <span style="display:inline-block;width:14px;height:14px;background:#C8E6C9;border:1px solid #ccc;vertical-align:middle;margin-right:4px;"></span> 淡绿色 = 志愿者标记为备班；
+        <span style="display:inline-block;width:14px;height:14px;background:#D32F2F;border:1px solid #ccc;vertical-align:middle;margin-right:4px;"></span> 红色 = 管理员已指派（可服务）；
+        <span style="display:inline-block;width:14px;height:14px;background:#388E3C;border:1px solid #ccc;vertical-align:middle;margin-right:4px;"></span> 绿色 = 管理员已指派（备班）
     </div>
 
     <div class="schedule-grid">
@@ -394,14 +427,20 @@
                     <c:forEach var="day" begin="1" end="7">
                         <c:set var="cellKey" value="${day}_MORNING"/>
                         <c:set var="cellClass" value="" />
-                        <c:if test="${scheduleMap[cellKey]}">
+                        <c:if test="${scheduleMap[cellKey] == 'available'}">
                             <c:set var="cellClass" value="selected" />
+                        </c:if>
+                        <c:if test="${scheduleMap[cellKey] == 'standby'}">
+                            <c:set var="cellClass" value="admin-standby" />
                         </c:if>
                         <c:if test="${volunteerStatusMap[cellKey] == 'available'}">
                             <c:set var="cellClass" value="${cellClass} volunteer-available" />
                         </c:if>
                         <c:if test="${volunteerStatusMap[cellKey] == 'busy'}">
                             <c:set var="cellClass" value="${cellClass} volunteer-busy" />
+                        </c:if>
+                        <c:if test="${volunteerStatusMap[cellKey] == 'standby'}">
+                            <c:set var="cellClass" value="${cellClass} volunteer-standby" />
                         </c:if>
                         <td class="${cellClass}" data-key="${cellKey}"></td>
                     </c:forEach>
@@ -411,14 +450,20 @@
                     <c:forEach var="day" begin="1" end="7">
                         <c:set var="cellKey" value="${day}_AFTERNOON"/>
                         <c:set var="cellClass" value="" />
-                        <c:if test="${scheduleMap[cellKey]}">
+                        <c:if test="${scheduleMap[cellKey] == 'available'}">
                             <c:set var="cellClass" value="selected" />
+                        </c:if>
+                        <c:if test="${scheduleMap[cellKey] == 'standby'}">
+                            <c:set var="cellClass" value="admin-standby" />
                         </c:if>
                         <c:if test="${volunteerStatusMap[cellKey] == 'available'}">
                             <c:set var="cellClass" value="${cellClass} volunteer-available" />
                         </c:if>
                         <c:if test="${volunteerStatusMap[cellKey] == 'busy'}">
                             <c:set var="cellClass" value="${cellClass} volunteer-busy" />
+                        </c:if>
+                        <c:if test="${volunteerStatusMap[cellKey] == 'standby'}">
+                            <c:set var="cellClass" value="${cellClass} volunteer-standby" />
                         </c:if>
                         <td class="${cellClass}" data-key="${cellKey}"></td>
                     </c:forEach>
@@ -428,14 +473,20 @@
                     <c:forEach var="day" begin="1" end="7">
                         <c:set var="cellKey" value="${day}_EVENING"/>
                         <c:set var="cellClass" value="" />
-                        <c:if test="${scheduleMap[cellKey]}">
+                        <c:if test="${scheduleMap[cellKey] == 'available'}">
                             <c:set var="cellClass" value="selected" />
+                        </c:if>
+                        <c:if test="${scheduleMap[cellKey] == 'standby'}">
+                            <c:set var="cellClass" value="admin-standby" />
                         </c:if>
                         <c:if test="${volunteerStatusMap[cellKey] == 'available'}">
                             <c:set var="cellClass" value="${cellClass} volunteer-available" />
                         </c:if>
                         <c:if test="${volunteerStatusMap[cellKey] == 'busy'}">
                             <c:set var="cellClass" value="${cellClass} volunteer-busy" />
+                        </c:if>
+                        <c:if test="${volunteerStatusMap[cellKey] == 'standby'}">
+                            <c:set var="cellClass" value="${cellClass} volunteer-standby" />
                         </c:if>
                         <td class="${cellClass}" data-key="${cellKey}"></td>
                     </c:forEach>
@@ -504,10 +555,17 @@
         window.location.href = '${pageContext.request.contextPath}/admin/schedule/manage?volunteerId=' + volunteerId;
     }
 
-    // 点击切换选中状态
+    // 点击切换状态：空白 → 可服务(红) → 备班(绿) → 空白
     document.querySelectorAll('td[data-key]').forEach(function(cell) {
         cell.addEventListener('click', function() {
-            this.classList.toggle('selected');
+            if (this.classList.contains('selected')) {
+                this.classList.remove('selected');
+                this.classList.add('admin-standby');
+            } else if (this.classList.contains('admin-standby')) {
+                this.classList.remove('admin-standby');
+            } else {
+                this.classList.add('selected');
+            }
         });
     });
 
@@ -521,7 +579,13 @@
         var scheduleData = {};
         document.querySelectorAll('td[data-key]').forEach(function(cell) {
             var key = cell.getAttribute('data-key');
-            scheduleData[key] = cell.classList.contains('selected');
+            if (cell.classList.contains('selected')) {
+                scheduleData[key] = 'available';
+            } else if (cell.classList.contains('admin-standby')) {
+                scheduleData[key] = 'standby';
+            } else {
+                scheduleData[key] = false;
+            }
         });
 
         fetch('${pageContext.request.contextPath}/admin/schedule/update?volunteerId=' + volunteerId, {
@@ -560,7 +624,7 @@
     function getDayName(key) {
         const parts = key.split('_');
         const dayMap = {
-            '1': '周一', '2': '周二', '3': '周三', 
+            '1': '周一', '2': '周二', '3': '周三',
             '4': '周四', '5': '周五', '6': '周六', '7': '周日'
         };
         const timeMap = {
@@ -568,6 +632,35 @@
         };
         return dayMap[parts[0]] + timeMap[parts[1]];
     }
+
+    // 悬浮窗 10 秒轮询，跨端近实时同步当前值班情况
+    function refreshSummary() {
+        fetch('${pageContext.request.contextPath}/api/schedule/summary', { credentials: 'same-origin' })
+            .then(r => r.ok ? r.json() : null)
+            .then(data => {
+                if (!data) return;
+                document.querySelectorAll('[data-summary-key]').forEach(cell => {
+                    const key = cell.getAttribute('data-summary-key');
+                    const entry = data[key];
+                    cell.classList.remove('has-volunteer', 'has-standby');
+                    if (entry && entry.status === 'available') {
+                        cell.classList.add('has-volunteer');
+                        cell.textContent = entry.count + '人';
+                        cell.setAttribute('data-volunteers', entry.names);
+                    } else if (entry && entry.status === 'standby') {
+                        cell.classList.add('has-standby');
+                        cell.textContent = entry.count + '人';
+                        cell.setAttribute('data-volunteers', entry.names);
+                    } else {
+                        cell.textContent = '-';
+                        cell.removeAttribute('data-volunteers');
+                    }
+                });
+            })
+            .catch(() => {});
+    }
+    setInterval(refreshSummary, 10000);
 </script>
 </body>
 </html>
+

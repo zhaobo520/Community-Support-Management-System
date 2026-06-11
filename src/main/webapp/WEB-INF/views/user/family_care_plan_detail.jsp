@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -285,7 +285,7 @@
             width: 60px;
             height: 60px;
             border-radius: 4px;
-            background: linear-gradient(135deg, #1976D2, #1565C0);
+            background: linear-gradient(135deg, #B71C1C, #B71C1C);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -571,3 +571,4 @@
 </div>
 </body>
 </html>
+

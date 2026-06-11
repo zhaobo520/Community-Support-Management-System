@@ -30,6 +30,7 @@
     <result property="fullName" column="full_name"/>
     <result property="phone" column="phone"/>
     <result property="email" column="email"/>
+    <result property="avatar" column="avatar"/>
   </resultMap>
 
   <sql id="baseColumns">
@@ -38,7 +39,7 @@
     vp.service_area, vp.available_time, vp.volunteer_status, vp.approve_time,
     vp.approve_by, vp.service_hours, vp.task_count, vp.average_rating,
     vp.introduction, vp.photo_url, vp.created_time, vp.updated_time,
-    u.username, u.full_name, u.phone, u.email
+    u.username, u.full_name, u.phone, u.email, u.avatar
   </sql>
 
   <select id="findAll" resultMap="VolunteerResultMap">

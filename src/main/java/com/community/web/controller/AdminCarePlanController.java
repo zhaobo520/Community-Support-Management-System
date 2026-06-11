@@ -523,6 +523,17 @@ public class AdminCarePlanController {
     /**
      * 待审核服务记录列表
      */
+    @GetMapping("/record/delete/{id}")
+    public String deleteRecord(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        CarePlanServiceRecord record = recordService.findById(id);
+        if (record != null) {
+            recordService.delete(id);
+            redirectAttributes.addFlashAttribute("successMessage", "服务记录已成功删除");
+            return "redirect:/admin/care-plan/" + record.getPlanId();
+        }
+        return "redirect:/admin/care-plan/list";
+    }
+
     @GetMapping("/records/pending")
     public String pendingRecords(Model model, HttpSession session) {
         User currentUser = getCurrentAdmin(session);

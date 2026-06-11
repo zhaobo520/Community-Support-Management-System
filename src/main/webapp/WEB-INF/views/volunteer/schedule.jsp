@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="zh">
@@ -118,14 +118,55 @@
             font-size: 18px;
         }
         .grid-cell.busy {
-            background: #666;
-            border-color: #666;
+            background: #333;
+            border-color: #333;
             color: white;
         }
         .grid-cell.busy::after {
             content: '✕';
             font-weight: bold;
             font-size: 18px;
+        }
+        .grid-cell.standby {
+            background: #388E3C;
+            border-color: #388E3C;
+            color: white;
+        }
+        .grid-cell.standby::after {
+            content: '◎';
+            font-weight: bold;
+            font-size: 18px;
+        }
+        /* 管理员指派的格子：志愿者不能直接编辑 */
+        .grid-cell.admin-pending {
+            border: 3px dashed #f59e0b !important;
+            cursor: help;
+            position: relative;
+        }
+        .grid-cell.admin-pending::before {
+            content: '⏳';
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 12px;
+            background: white;
+            border-radius: 50%;
+            padding: 1px 3px;
+        }
+        .grid-cell.admin-confirmed {
+            border: 3px solid #1976D2 !important;
+            cursor: help;
+            position: relative;
+        }
+        .grid-cell.admin-confirmed::before {
+            content: '🔒';
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 12px;
+            background: white;
+            border-radius: 50%;
+            padding: 1px 3px;
         }
         .actions {
             text-align: center;
@@ -168,7 +209,10 @@
             background: #D32F2F;
         }
         .legend-busy {
-            background: #666;
+            background: #333;
+        }
+        .legend-standby {
+            background: #388E3C;
         }
         .legend-empty {
             background: white;
@@ -211,11 +255,11 @@
         }
         .btn-agree {
             background: white;
-            color: #4CAF50;
-            border-color: #4CAF50;
+            color: #D32F2F;
+            border-color: #D32F2F;
         }
         .btn-agree:hover {
-            background: #4CAF50;
+            background: #D32F2F;
             color: white;
         }
         .btn-reject {
@@ -255,6 +299,80 @@
             color: #666;
             font-size: 13px;
         }
+        /* 右上角悬浮值班汇总 */
+        .summary-widget {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: white;
+            border-radius: 4px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-width: 380px;
+            border: 2px solid #1976D2;
+        }
+        .summary-widget h3 {
+            font-size: 14px;
+            color: #1976D2;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 50px repeat(7, 1fr);
+            gap: 3px;
+            font-size: 10px;
+        }
+        .summary-grid .s-header {
+            background: #E3F2FD;
+            padding: 5px 3px;
+            text-align: center;
+            border-radius: 2px;
+            font-weight: 600;
+            color: #1976D2;
+        }
+        .summary-grid .s-cell {
+            background: #FAFAFA;
+            padding: 8px 3px;
+            text-align: center;
+            border-radius: 2px;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            color: #999;
+        }
+        .summary-grid .s-cell.has-volunteer {
+            background: #D32F2F;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+        }
+        .summary-grid .s-cell.has-standby {
+            background: #FFA000;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+        }
+        .summary-grid .s-cell.has-volunteer:hover::after,
+        .summary-grid .s-cell.has-standby:hover::after {
+            content: attr(data-volunteers);
+            position: absolute;
+            top: -5px;
+            right: 105%;
+            background: #1976D2;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 2px;
+            white-space: nowrap;
+            font-size: 10px;
+            z-index: 1001;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
@@ -266,9 +384,69 @@
         </div>
     </header>
 
+    <!-- 右上角值班汇总小表格 -->
+    <div class="summary-widget">
+        <h3>当前值班情况</h3>
+        <div class="summary-grid">
+            <div class="s-header"></div>
+            <div class="s-header">周一</div>
+            <div class="s-header">周二</div>
+            <div class="s-header">周三</div>
+            <div class="s-header">周四</div>
+            <div class="s-header">周五</div>
+            <div class="s-header">周六</div>
+            <div class="s-header">周日</div>
+
+            <div class="s-header">上午</div>
+            <c:forEach var="day" begin="1" end="7">
+                <c:set var="key" value="${day}_MORNING"/>
+                <c:set var="entry" value="${volunteerSummary[key]}"/>
+                <c:choose>
+                    <c:when test="${entry.status == 'available'}">
+                        <div class="s-cell has-volunteer" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
+                    </c:when>
+                    <c:when test="${entry.status == 'standby'}">
+                        <div class="s-cell has-standby" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
+                    </c:when>
+                    <c:otherwise><div class="s-cell" data-summary-key="${key}">-</div></c:otherwise>
+                </c:choose>
+            </c:forEach>
+
+            <div class="s-header">下午</div>
+            <c:forEach var="day" begin="1" end="7">
+                <c:set var="key" value="${day}_AFTERNOON"/>
+                <c:set var="entry" value="${volunteerSummary[key]}"/>
+                <c:choose>
+                    <c:when test="${entry.status == 'available'}">
+                        <div class="s-cell has-volunteer" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
+                    </c:when>
+                    <c:when test="${entry.status == 'standby'}">
+                        <div class="s-cell has-standby" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
+                    </c:when>
+                    <c:otherwise><div class="s-cell" data-summary-key="${key}">-</div></c:otherwise>
+                </c:choose>
+            </c:forEach>
+
+            <div class="s-header">晚上</div>
+            <c:forEach var="day" begin="1" end="7">
+                <c:set var="key" value="${day}_EVENING"/>
+                <c:set var="entry" value="${volunteerSummary[key]}"/>
+                <c:choose>
+                    <c:when test="${entry.status == 'available'}">
+                        <div class="s-cell has-volunteer" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
+                    </c:when>
+                    <c:when test="${entry.status == 'standby'}">
+                        <div class="s-cell has-standby" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
+                    </c:when>
+                    <c:otherwise><div class="s-cell" data-summary-key="${key}">-</div></c:otherwise>
+                </c:choose>
+            </c:forEach>
+        </div>
+    </div>
+
     <div class="container">
         <div class="schedule-card">
-            <p class="schedule-intro">请选择您每周固定的空闲时间段，系统将根据这些时间优先为您推荐任务。</p>
+            <p class="schedule-intro">您可以随时调整每周固定的空闲时间段，标记后会立即在值班汇总中显示。管理员指派的排班需要您同意后才会生效。</p>
 
             <div class="legend">
                 <div class="legend-item">
@@ -280,12 +458,25 @@
                     <span>忙碌</span>
                 </div>
                 <div class="legend-item">
+                    <div class="legend-box legend-standby"></div>
+                    <span>备班</span>
+                </div>
+                <div class="legend-item">
                     <div class="legend-box legend-empty"></div>
                     <span>未设置</span>
                 </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="border:3px dashed #f59e0b;background:white;"></div>
+                    <span>⏳ 管理员指派 - 待您确认</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="border:3px solid #1976D2;background:white;"></div>
+                    <span>🔒 管理员指派 - 您已同意（可修改）</span>
+                </div>
             </div>
             <p class="schedule-intro" style="margin-top: 10px; font-size: 13px; color: #999;">
-                点击格子可在三种状态间切换：空白 → 可服务 → 忙碌 → 空白
+                您可以随时点击格子在四种状态间切换：空白 → 可服务 → 忙碌 → 备班 → 空白。<br>
+                <strong style="color:#f59e0b;">待您确认</strong>的管理员指派需先点"同意/拒绝"；<strong style="color:#1976D2;">已同意</strong>的可以直接点击修改，修改后转为您自己的标记。
             </p>
 
             <div class="schedule-grid">
@@ -308,6 +499,15 @@
                     <c:if test="${scheduleMap[key] == 'busy'}">
                         <c:set var="cellClass" value="busy" />
                     </c:if>
+                    <c:if test="${scheduleMap[key] == 'standby'}">
+                        <c:set var="cellClass" value="standby" />
+                    </c:if>
+                    <c:if test="${adminScheduleMap[key] == 'available'}">
+                        <c:set var="cellClass" value="selected admin-${adminLockStatus[key]}" />
+                    </c:if>
+                    <c:if test="${adminScheduleMap[key] == 'standby'}">
+                        <c:set var="cellClass" value="standby admin-${adminLockStatus[key]}" />
+                    </c:if>
                     <div class="grid-cell ${cellClass}"
                          data-day="${day}" data-slot="MORNING"></div>
                 </c:forEach>
@@ -322,6 +522,15 @@
                     <c:if test="${scheduleMap[key] == 'busy'}">
                         <c:set var="cellClass" value="busy" />
                     </c:if>
+                    <c:if test="${scheduleMap[key] == 'standby'}">
+                        <c:set var="cellClass" value="standby" />
+                    </c:if>
+                    <c:if test="${adminScheduleMap[key] == 'available'}">
+                        <c:set var="cellClass" value="selected admin-${adminLockStatus[key]}" />
+                    </c:if>
+                    <c:if test="${adminScheduleMap[key] == 'standby'}">
+                        <c:set var="cellClass" value="standby admin-${adminLockStatus[key]}" />
+                    </c:if>
                     <div class="grid-cell ${cellClass}"
                          data-day="${day}" data-slot="AFTERNOON"></div>
                 </c:forEach>
@@ -335,6 +544,15 @@
                     </c:if>
                     <c:if test="${scheduleMap[key] == 'busy'}">
                         <c:set var="cellClass" value="busy" />
+                    </c:if>
+                    <c:if test="${scheduleMap[key] == 'standby'}">
+                        <c:set var="cellClass" value="standby" />
+                    </c:if>
+                    <c:if test="${adminScheduleMap[key] == 'available'}">
+                        <c:set var="cellClass" value="selected admin-${adminLockStatus[key]}" />
+                    </c:if>
+                    <c:if test="${adminScheduleMap[key] == 'standby'}">
+                        <c:set var="cellClass" value="standby admin-${adminLockStatus[key]}" />
                     </c:if>
                     <div class="grid-cell ${cellClass}"
                          data-day="${day}" data-slot="EVENING"></div>
@@ -391,11 +609,24 @@
     <script>
         document.querySelectorAll('.grid-cell').forEach(cell => {
             cell.addEventListener('click', function() {
+                // 待确认的管理员指派：不能直接修改，需在下方"待确认排班"同意/拒绝
+                if (this.classList.contains('admin-pending')) {
+                    alert('该时段由管理员指派,请在下方"管理员待确认排班"中选择同意或拒绝');
+                    return;
+                }
+                // 已同意的管理员指派：志愿者可以修改，修改后转为志愿者自己的标记
+                if (this.classList.contains('admin-confirmed')) {
+                    this.classList.remove('admin-confirmed');
+                    // 继续向下执行状态循环
+                }
                 if (this.classList.contains('selected')) {
                     this.classList.remove('selected');
                     this.classList.add('busy');
                 } else if (this.classList.contains('busy')) {
                     this.classList.remove('busy');
+                    this.classList.add('standby');
+                } else if (this.classList.contains('standby')) {
+                    this.classList.remove('standby');
                 } else {
                     this.classList.add('selected');
                 }
@@ -405,6 +636,10 @@
         function saveSchedule() {
             const scheduleData = {};
             document.querySelectorAll('.grid-cell').forEach(cell => {
+                // 仅待确认的管理员指派不参与保存（必须先走 confirm/reject 流程）
+                if (cell.classList.contains('admin-pending')) {
+                    return;
+                }
                 const day = cell.getAttribute('data-day');
                 const slot = cell.getAttribute('data-slot');
                 const key = day + '_' + slot;
@@ -413,6 +648,8 @@
                     scheduleData[key] = 'available';
                 } else if (cell.classList.contains('busy')) {
                     scheduleData[key] = 'busy';
+                } else if (cell.classList.contains('standby')) {
+                    scheduleData[key] = 'standby';
                 } else {
                     scheduleData[key] = 'empty';
                 }
@@ -429,6 +666,7 @@
             .then(data => {
                 if (data.success) {
                     alert('排班设置已保存');
+                    location.reload();
                 } else {
                     alert('保存失败：' + data.message);
                 }
@@ -490,6 +728,35 @@
                 alert('操作失败，请稍后重试');
             });
         }
+
+        // 悬浮窗 10 秒轮询，跨端近实时同步当前值班情况
+        function refreshSummary() {
+            fetch('${pageContext.request.contextPath}/api/schedule/summary', { credentials: 'same-origin' })
+                .then(r => r.ok ? r.json() : null)
+                .then(data => {
+                    if (!data) return;
+                    document.querySelectorAll('[data-summary-key]').forEach(cell => {
+                        const key = cell.getAttribute('data-summary-key');
+                        const entry = data[key];
+                        cell.classList.remove('has-volunteer', 'has-standby');
+                        if (entry && entry.status === 'available') {
+                            cell.classList.add('has-volunteer');
+                            cell.textContent = entry.count + '人';
+                            cell.setAttribute('data-volunteers', entry.names);
+                        } else if (entry && entry.status === 'standby') {
+                            cell.classList.add('has-standby');
+                            cell.textContent = entry.count + '人';
+                            cell.setAttribute('data-volunteers', entry.names);
+                        } else {
+                            cell.textContent = '-';
+                            cell.removeAttribute('data-volunteers');
+                        }
+                    });
+                })
+                .catch(() => {});
+        }
+        setInterval(refreshSummary, 10000);
     </script>
 </body>
 </html>
+

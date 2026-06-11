@@ -106,7 +106,8 @@ public class BadgeServiceImpl implements BadgeService {
 
                 switch (conditionType) {
                     case "TASK_COUNT":
-                        // 完成任务数量
+                    case "SERVICE_COUNT":
+                        // 完成任务/服务数量
                         if (completedTasks >= conditionValue) {
                             shouldUnlock = true;
                         }

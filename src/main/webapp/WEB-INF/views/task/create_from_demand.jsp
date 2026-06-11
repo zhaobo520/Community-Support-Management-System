@@ -12,31 +12,56 @@
     body {
       background: #FAF5F0;
       min-height: 100vh;
-      padding: 40px 20px;
+      font-family: 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
     .gov-header {
-      background: linear-gradient(90deg, #B71C1C 0%, #D32F2F 100%);
-      padding: 20px 60px;
-      margin-bottom: 40px;
-      border-radius: 4px;
+      background: linear-gradient(135deg, #B71C1C 0%, #D32F2F 100%);
+      height: 64px;
+      padding: 0 32px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      justify-content: space-between;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      position: relative;
       color: white;
+    }
+    .gov-header::before {
+      content: '★';
+      position: absolute;
+      left: 24px;
+      color: rgba(255,255,255,0.3);
+      font-size: 20px;
     }
     .gov-header h1 {
-      font-size: 24px;
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 0 40px;
+      letter-spacing: 2px;
+    }
+    .gov-header .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      color: rgba(255,255,255,0.9);
+      font-size: 13px;
+    }
+    .gov-header .nav-right a {
+      color: rgba(255,255,255,0.9);
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .gov-header .nav-right a:hover {
+      background: rgba(255,255,255,0.15);
       color: white;
     }
-    .navbar a {
-      color: white;
-      text-decoration: none;
-      margin-left: 20px;
-      font-weight: 600;
+    .page-wrap {
+      padding: 28px 20px 40px;
     }
     .container {
-      max-width: 1000px;
+      max-width: 1200px;
       margin: 0 auto;
     }
     .main-content {
@@ -46,9 +71,11 @@
     }
     .demand-info {
       background: #fff;
-      border-radius: 4px;
+      border-radius: 8px;
       padding: 24px;
       height: fit-content;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      border: 1px solid #eee;
     }
     .demand-info h3 {
       font-size: 18px;
@@ -72,8 +99,10 @@
     }
     .form-container {
       background: #fff;
-      border-radius: 4px;
+      border-radius: 8px;
       padding: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      border: 1px solid #eee;
     }
     .form-header {
       text-align: center;
@@ -129,7 +158,7 @@
       border: 2px solid #e2e8f0;
       border-radius: 4px;
       font-size: 14px;
-      font-family: 'Nunito', sans-serif;
+      font-family: 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       transition: all 0.3s;
     }
     .form-group input:focus,
@@ -149,7 +178,7 @@
       background: white;
       border: 2px solid #D32F2F;
       color: #D32F2F;
-      border-radius: 4px;
+      border-radius: 6px;
       font-size: 16px;
       font-weight: 700;
       cursor: pointer;
@@ -159,6 +188,7 @@
     .btn-submit:hover {
       background: #D32F2F;
       color: white;
+      box-shadow: 0 4px 12px rgba(211,47,47,0.3);
     }
     .error {
       background: rgba(239,68,68,0.1);
@@ -179,20 +209,49 @@
       color: #D32F2F;
       margin-bottom: 8px;
     }
+    @media (max-width: 768px) {
+      .gov-header {
+        padding: 10px 16px;
+        height: auto;
+        min-height: 64px;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 8px;
+      }
+      .gov-header h1 {
+        margin-left: 32px;
+      }
+      .gov-header .nav-right {
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+      .page-wrap {
+        padding: 20px 16px 32px;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
-<div class="navbar">
-  <h1>从需求创建任务</h1>
-  <div>
-    <a href="${pageContext.request.contextPath}/admin/demand/detail/${demand.id}">← 返回需求详情</a>
+<header class="gov-header">
+  <h1>社区管理员工作台</h1>
+  <div class="nav-right">
+    <span>当前页面：任务创建</span>
+    <a href="${pageContext.request.contextPath}/user/admin/dashboard">管理员首页</a>
+    <a href="${pageContext.request.contextPath}/admin/demand/detail/${demand.id}">返回需求详情</a>
     <a href="${pageContext.request.contextPath}/admin/demand/list">需求列表</a>
   </div>
-</div>
+</header>
 
+<div class="page-wrap">
 <div class="container">
   <div class="main-content">
-    <!-- 需求信息卡片 -->
     <div class="demand-info">
       <h3>需求信息</h3>
       <c:if test="${not empty demand}">
@@ -229,6 +288,23 @@
           <div class="info-label">服务地址</div>
           <div class="info-value">${demand.serviceAddress}</div>
         </div>
+        <div class="info-item">
+          <div class="info-label">意向志愿者</div>
+          <div class="info-value">
+            <c:choose>
+              <c:when test="${not empty demand.intendedVolunteer}">
+                <span style="color:#D32F2F;font-weight:700;">${demand.intendedVolunteer.fullName}</span>
+                <c:if test="${not empty demand.intendedVolunteer.phone}">
+                  <span style="color:#64748b;font-size:12px;"> · ${demand.intendedVolunteer.phone}</span>
+                </c:if>
+                <input type="hidden" id="intendedVolunteerUserId" value="${demand.intendedVolunteer.userId}"/>
+              </c:when>
+              <c:otherwise>
+                <span style="color:#94a3b8;font-style:italic;">未指定</span>
+              </c:otherwise>
+            </c:choose>
+          </div>
+        </div>
         <c:if test="${not empty demand.description}">
           <div class="info-item">
             <div class="info-label">需求描述</div>
@@ -249,7 +325,6 @@
       </c:if>
     </div>
 
-    <!-- 任务创建表单 -->
     <div class="form-container">
       <div class="form-header">
         <h2>创建任务</h2>
@@ -263,7 +338,6 @@
       <form action="${pageContext.request.contextPath}/admin/task/publish" method="post">
         <input type="hidden" name="demandId" value="${demand.id}"/>
 
-        <!-- 基本信息 -->
         <div class="form-section">
           <div class="section-title">基本信息</div>
           
@@ -306,8 +380,7 @@
           <div class="form-row">
             <div class="form-group">
               <label>计划日期</label>
-              <input type="date" name="scheduledDate" 
-                     value="<fmt:formatDate value='${demand.expectedStartTime}' pattern='yyyy-MM-dd'/>"/>
+              <input type="date" name="scheduledDate" value="<fmt:formatDate value='${demand.expectedStartTime}' pattern='yyyy-MM-dd'/>"/>
             </div>
             <div class="form-group">
               <label>计划时间</label>
@@ -325,7 +398,6 @@
           </div>
         </div>
 
-        <!-- 服务信息 -->
         <div class="form-section">
           <div class="section-title">服务信息</div>
 
@@ -349,7 +421,6 @@
             <input type="tel" name="contactPhone" value="${demand.contactPhone}"/>
           </div>
           
-          <!-- 智能推荐志愿者 -->
           <div class="form-group" id="volunteer-section" style="display:none; background:#f8fafc; padding:15px; border-radius:12px; border:1px dashed #cbd5e1; margin-top:20px;">
             <label style="color:#D32F2F; display:flex; align-items:center; gap:8px;">
               <span>智能推荐志愿者</span>
@@ -360,6 +431,9 @@
             </select>
             <div style="margin-top:8px; font-size:12px; color:#64748b;">
               * 系统已自动过滤掉该时段忙碌或已有任务的志愿者
+              <c:if test="${not empty demand.intendedVolunteer}">
+                <br/><span style="color:#10b981;">★ 家属意向志愿者：${demand.intendedVolunteer.fullName}（如其排班合适将默认选中）</span>
+              </c:if>
             </div>
           </div>
         </div>
@@ -369,9 +443,9 @@
     </div>
   </div>
 </div>
+</div>
 
 <script>
-// 智能推荐志愿者逻辑
 const dateInput = document.querySelector('input[name="scheduledDate"]');
 const timeSelect = document.getElementById('scheduledTimeSelect');
 const volunteerSection = document.getElementById('volunteer-section');
@@ -389,35 +463,50 @@ function getTimeSlot(timeStr) {
 function fetchRecommendations() {
     const dateVal = dateInput.value;
     const timeVal = timeSelect.value;
-    
+
     if (!dateVal || !timeVal) {
         volunteerSection.style.display = 'none';
         return;
     }
-    
+
     const slot = getTimeSlot(timeVal);
     if (!slot) return;
-    
+
     volunteerSection.style.display = 'block';
     recommendStatus.textContent = '(正在查找合适人选...)';
     recommendStatus.style.color = '#64748b';
-    
-    // Clear existing options (keep first)
     volunteerSelect.length = 1;
-    
+
+    // 获取意向志愿者的用户ID（如果有）
+    const intendedEl = document.getElementById('intendedVolunteerUserId');
+    const intendedUserId = intendedEl ? intendedEl.value : null;
+
     fetch('${pageContext.request.contextPath}/admin/task/recommend-volunteers?date=' + dateVal + '&time=' + slot)
     .then(response => response.json())
     .then(data => {
         if (data && data.length > 0) {
             recommendStatus.textContent = `(已为您找到 ${data.length} 位合适志愿者)`;
             recommendStatus.style.color = '#10b981';
-            
+            let matchedIntended = false;
             data.forEach(vol => {
                 const option = document.createElement('option');
                 option.value = vol.id;
-                option.textContent = `${vol.name} (排班合适)`;
+                const isIntended = intendedUserId && String(vol.id) === String(intendedUserId);
+                option.textContent = isIntended
+                    ? `★ ${vol.name} (家属意向)`
+                    : `${vol.name} (排班合适)`;
+                if (isIntended) {
+                    matchedIntended = true;
+                    option.selected = true;
+                }
                 volunteerSelect.appendChild(option);
             });
+            if (intendedUserId && matchedIntended) {
+                recommendStatus.textContent += ' · 已默认选中家属意向志愿者';
+            } else if (intendedUserId) {
+                recommendStatus.textContent += ' · 家属意向志愿者该时段不可用';
+                recommendStatus.style.color = '#f59e0b';
+            }
         } else {
             recommendStatus.textContent = '(暂无该时段空闲的志愿者)';
             recommendStatus.style.color = '#f59e0b';

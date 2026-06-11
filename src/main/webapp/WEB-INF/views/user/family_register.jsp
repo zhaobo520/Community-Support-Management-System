@@ -218,12 +218,14 @@ function validateForm() {
     return false;
   }
   
-  // Get uploaded avatar URL
+  // 强制校验头像上传
   var avatarUrls = getUploadedFileUrls();
-  if (avatarUrls) {
-    document.getElementById('avatarUrl').value = avatarUrls;
+  if (!avatarUrls || avatarUrls === "") {
+    alert('请先上传头像！');
+    return false;
   }
   
+  document.getElementById('avatarUrl').value = avatarUrls;
   return true;
 }
 </script>

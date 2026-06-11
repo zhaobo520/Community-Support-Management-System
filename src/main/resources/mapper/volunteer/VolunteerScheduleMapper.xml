@@ -35,13 +35,13 @@
     </select>
 
     <select id="findAllAvailableWithVolunteer" resultMap="BaseResultMap">
-        SELECT 
+        SELECT
             vs.*,
             u.full_name as volunteerName
         FROM volunteer_schedule vs
         INNER JOIN sys_user u ON vs.volunteer_id = u.id
-        WHERE vs.is_available = 1
-        AND vs.confirm_status IN ('CONFIRMED', 'PENDING')
+        WHERE vs.is_available IN (1, 2)
+        AND vs.confirm_status = 'CONFIRMED'
         AND u.role_type = 'VOLUNTEER'
         ORDER BY vs.day_of_week, vs.time_slot
     </select>
@@ -68,16 +68,20 @@
     </delete>
 
     <select id="findAvailableByTime" resultMap="BaseResultMap">
-        SELECT 
+        SELECT
             vs.*,
             u.full_name as volunteerName
         FROM volunteer_schedule vs
         INNER JOIN sys_user u ON vs.volunteer_id = u.id
         WHERE vs.day_of_week = #{dayOfWeek}
         AND vs.time_slot = #{timeSlot}
-        AND vs.is_available = 1
-        AND vs.confirm_status IN ('CONFIRMED', 'PENDING')
+        AND vs.is_available IN (1, 2)
+        AND vs.confirm_status = 'CONFIRMED'
         AND u.role_type = 'VOLUNTEER'
     </select>
+
+    <delete id="deleteVolunteerOwnedSchedules">
+        DELETE FROM volunteer_schedule WHERE assign_source = 'VOLUNTEER'
+    </delete>
 
 </mapper>

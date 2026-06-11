@@ -1,5 +1,6 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -322,7 +323,14 @@
                         <div class="card-header">
                             <c:choose>
                                 <c:when test="${not empty vol.avatar}">
-                                    <img src="${pageContext.request.contextPath}${vol.avatar}" class="avatar" style="object-fit: cover;" alt="">
+                                    <c:choose>
+                                        <c:when test="${fn:startsWith(vol.avatar, '/')}">
+                                            <img src="${pageContext.request.contextPath}${vol.avatar}" class="avatar" style="object-fit: cover;" alt="">
+                                        </c:when>
+                                        <c:otherwise>
+                                            <img src="${pageContext.request.contextPath}${vol.avatar}" class="avatar" style="object-fit: cover;" alt="">
+                                        </c:otherwise>
+                                    </c:choose>
                                 </c:when>
                                 <c:otherwise>
                                     <div class="avatar">${vol.fullName.substring(0,1)}</div>
@@ -424,3 +432,5 @@
 </script>
 </body>
 </html>
+
+

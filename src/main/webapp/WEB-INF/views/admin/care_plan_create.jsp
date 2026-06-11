@@ -268,7 +268,7 @@
                     <select name="assignedVolunteerId">
                         <option value="">暂不分配</option>
                         <c:forEach items="${volunteers}" var="volunteer">
-                            <option value="${volunteer.userId}">${volunteer.realName} (${volunteer.phone})</option>
+                            <option value="${volunteer.userId}">${volunteer.fullName} (${volunteer.phone})</option>
                         </c:forEach>
                     </select>
                     <div class="form-hint">可以稍后在编辑页面分配志愿者</div>

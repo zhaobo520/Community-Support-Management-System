@@ -25,6 +25,7 @@
         <result column="review_comment" property="reviewComment"/>
         <result column="task_id" property="taskId"/>
         <result column="attachment_url" property="attachmentUrl"/>
+        <result column="intended_volunteer_id" property="intendedVolunteerId"/>
         <result column="created_at" property="createdAt"/>
         <result column="updated_at" property="updatedAt"/>
     </resultMap>
@@ -49,6 +50,13 @@
             <result column="ht_archive_no" property="archiveNo"/>
             <result column="ht_family_address" property="familyAddress"/>
         </association>
+        <association property="intendedVolunteer" javaType="com.community.domain.VolunteerProfile">
+            <id column="iv_id" property="id"/>
+            <result column="iv_user_id" property="userId"/>
+            <result column="iv_full_name" property="fullName"/>
+            <result column="iv_phone" property="phone"/>
+            <result column="iv_skills" property="skills"/>
+        </association>
     </resultMap>
 
     <!-- 基础列 -->
@@ -56,7 +64,8 @@
         id, title, target_id, family_user_id, demand_type, urgency, required_skill,
         time_requirement, expected_start_time, expected_end_time, description,
         service_address, contact_person, contact_phone, status, reviewer_id,
-        review_time, review_comment, task_id, attachment_url, created_at, updated_at
+        review_time, review_comment, task_id, attachment_url, intended_volunteer_id,
+        created_at, updated_at
     </sql>
 
     <!-- 带关联的列 -->
@@ -65,12 +74,14 @@
         d.required_skill, d.time_requirement, d.expected_start_time, d.expected_end_time,
         d.description, d.service_address, d.contact_person, d.contact_phone,
         d.status, d.reviewer_id, d.review_time, d.review_comment, d.task_id,
-        d.attachment_url, d.created_at, d.updated_at,
+        d.attachment_url, d.intended_volunteer_id, d.created_at, d.updated_at,
         fu.id as fu_id, fu.username as fu_username, fu.full_name as fu_full_name,
         fu.phone as fu_phone, fu.email as fu_email,
         rv.id as rv_id, rv.username as rv_username, rv.full_name as rv_full_name,
         ht.id as ht_id, ht.name as ht_name, ht.archive_no as ht_archive_no,
-        ht.family_address as ht_family_address
+        ht.family_address as ht_family_address,
+        iv.id as iv_id, iv.user_id as iv_user_id, iv_user.full_name as iv_full_name,
+        iv_user.phone as iv_phone, iv.skills as iv_skills
     </sql>
 
     <!-- 插入需求 -->
@@ -78,11 +89,13 @@
         INSERT INTO demand (
             title, target_id, family_user_id, demand_type, urgency, required_skill,
             time_requirement, expected_start_time, expected_end_time, description,
-            service_address, contact_person, contact_phone, status, attachment_url
+            service_address, contact_person, contact_phone, status, attachment_url,
+            intended_volunteer_id
         ) VALUES (
             #{title}, #{targetId}, #{familyUserId}, #{demandType}, #{urgency}, #{requiredSkill},
             #{timeRequirement}, #{expectedStartTime}, #{expectedEndTime}, #{description},
-            #{serviceAddress}, #{contactPerson}, #{contactPhone}, #{status}, #{attachmentUrl}
+            #{serviceAddress}, #{contactPerson}, #{contactPhone}, #{status}, #{attachmentUrl},
+            #{intendedVolunteerId}
         )
     </insert>
 
@@ -104,6 +117,7 @@
             <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
             <if test="status != null">status = #{status},</if>
             <if test="attachmentUrl != null">attachment_url = #{attachmentUrl},</if>
+            intended_volunteer_id = #{intendedVolunteerId},
         </set>
         WHERE id = #{id}
     </update>
@@ -115,6 +129,8 @@
         LEFT JOIN sys_user fu ON d.family_user_id = fu.id
         LEFT JOIN sys_user rv ON d.reviewer_id = rv.id
         LEFT JOIN help_target ht ON d.target_id = ht.id
+        LEFT JOIN volunteer_profile iv ON d.intended_volunteer_id = iv.id
+        LEFT JOIN sys_user iv_user ON iv.user_id = iv_user.id
         WHERE d.id = #{id}
     </select>
 
@@ -132,6 +148,8 @@
         LEFT JOIN sys_user fu ON d.family_user_id = fu.id
         LEFT JOIN sys_user rv ON d.reviewer_id = rv.id
         LEFT JOIN help_target ht ON d.target_id = ht.id
+        LEFT JOIN volunteer_profile iv ON d.intended_volunteer_id = iv.id
+        LEFT JOIN sys_user iv_user ON iv.user_id = iv_user.id
         ORDER BY d.created_at DESC
     </select>
 
@@ -142,6 +160,8 @@
         LEFT JOIN sys_user fu ON d.family_user_id = fu.id
         LEFT JOIN sys_user rv ON d.reviewer_id = rv.id
         LEFT JOIN help_target ht ON d.target_id = ht.id
+        LEFT JOIN volunteer_profile iv ON d.intended_volunteer_id = iv.id
+        LEFT JOIN sys_user iv_user ON iv.user_id = iv_user.id
         WHERE d.family_user_id = #{familyUserId}
         ORDER BY d.created_at DESC
     </select>
@@ -153,6 +173,8 @@
         LEFT JOIN sys_user fu ON d.family_user_id = fu.id
         LEFT JOIN sys_user rv ON d.reviewer_id = rv.id
         LEFT JOIN help_target ht ON d.target_id = ht.id
+        LEFT JOIN volunteer_profile iv ON d.intended_volunteer_id = iv.id
+        LEFT JOIN sys_user iv_user ON iv.user_id = iv_user.id
         WHERE d.status = #{status}
         ORDER BY d.created_at DESC
     </select>
@@ -164,6 +186,8 @@
         LEFT JOIN sys_user fu ON d.family_user_id = fu.id
         LEFT JOIN sys_user rv ON d.reviewer_id = rv.id
         LEFT JOIN help_target ht ON d.target_id = ht.id
+        LEFT JOIN volunteer_profile iv ON d.intended_volunteer_id = iv.id
+        LEFT JOIN sys_user iv_user ON iv.user_id = iv_user.id
         WHERE d.status = 'PENDING'
         ORDER BY d.urgency DESC, d.created_at ASC
     </select>
@@ -175,6 +199,8 @@
         LEFT JOIN sys_user fu ON d.family_user_id = fu.id
         LEFT JOIN sys_user rv ON d.reviewer_id = rv.id
         LEFT JOIN help_target ht ON d.target_id = ht.id
+        LEFT JOIN volunteer_profile iv ON d.intended_volunteer_id = iv.id
+        LEFT JOIN sys_user iv_user ON iv.user_id = iv_user.id
         WHERE d.status = 'APPROVED'
         ORDER BY d.urgency DESC, d.expected_start_time ASC
     </select>

@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -145,7 +145,7 @@
         }
         .task-item {
             padding: 20px;
-            border-bottom: 1px solid #F5F5F5;
+            border-bottom: 1px solid #FAF5F0;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -176,8 +176,8 @@
             font-weight: 600;
         }
         .status-approved {
-            background: rgba(76,175,80,0.15);
-            color: #4CAF50;
+            background: rgba(211, 47, 47,0.15);
+            color: #D32F2F;
         }
         .status-completed {
             background: rgba(211,47,47,0.15);
@@ -267,3 +267,4 @@
     </div>
 </body>
 </html>
+

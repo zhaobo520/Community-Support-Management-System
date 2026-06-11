@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -48,9 +48,9 @@
             border-radius: 4px;
         }
         .message.success {
-            background: #E8F5E9;
-            color: #2E7D32;
-            border-left: 4px solid #4CAF50;
+            background: #FBE9E7;
+            color: #B71C1C;
+            border-left: 4px solid #D32F2F;
         }
         .message.error {
             background: #FFEBEE;
@@ -298,7 +298,7 @@
                 <div class="radio-group">
                     <label class="radio-item">
                         <input type="radio" name="auditStatus" value="APPROVED" checked>
-                        <span style="color: #4CAF50; font-weight: bold;">审核通过</span>
+                        <span style="color: #D32F2F; font-weight: bold;">审核通过</span>
                     </label>
                     <label class="radio-item">
                         <input type="radio" name="auditStatus" value="REJECTED">
@@ -340,3 +340,4 @@
     </script>
 </body>
 </html>
+

@@ -43,6 +43,7 @@ public class VolunteerProfile implements Serializable {
   private String fullName;
   private String phone;
   private String email;
+  private String avatar;  // User avatar from sys_user
 
   // Skill list (non-database field)
   private List<VolunteerSkill> skillList;
@@ -256,6 +257,14 @@ public class VolunteerProfile implements Serializable {
 
   public void setEmail(String email) {
     this.email = email;
+  }
+
+  public String getAvatar() {
+    return avatar;
+  }
+
+  public void setAvatar(String avatar) {
+    this.avatar = avatar;
   }
 
   public List<VolunteerSkill> getSkillList() {

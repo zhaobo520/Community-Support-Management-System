@@ -8,6 +8,7 @@ import com.community.service.CarePlanService;
 import com.community.service.CarePlanServiceRecordService;
 import com.community.service.ElderlyService;
 import com.community.service.NotificationService;
+import com.community.service.SysFileService;
 import com.community.service.UserService;
 import com.community.dao.CarePlanServiceRecordMapper;
 import org.slf4j.Logger;
@@ -19,9 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.io.File;
-import java.io.IOException;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -36,8 +36,8 @@ public class VolunteerCarePlanController {
 
     private static final Logger log = LoggerFactory.getLogger(VolunteerCarePlanController.class);
 
-    // 文件上传路径
-    private static final String UPLOAD_DIR = "uploads/service_records/";
+    @Resource
+    private SysFileService sysFileService;
 
     @Resource
     private CarePlanService carePlanService;
@@ -367,36 +367,23 @@ public class VolunteerCarePlanController {
     }
 
     /**
-     * 保存照片
-     * 使用固定的外部目录存储，避免重新部署时丢失
+     * 保存照片到数据库，返回访问URL
      */
     private String savePhoto(MultipartFile photo, Long planId) {
         try {
-            // 使用固定的外部目录
-            String uploadPath = UploadController.UPLOAD_BASE_PATH + UPLOAD_DIR + planId + "/";
-
-            File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
+            Long fileId = sysFileService.upload(photo, null);
+            if (fileId != null) {
+                // 提取扩展名方便前端识别类型
+                String ext = "";
+                String originalName = photo.getOriginalFilename();
+                if (originalName != null && originalName.contains(".")) {
+                    ext = originalName.substring(originalName.lastIndexOf("."));
+                }
+                log.info("Photo saved to database: fileId={}, planId={}", fileId, planId);
+                return "/file/view/" + fileId + ext;
             }
-
-            // 生成文件名
-            String originalFilename = photo.getOriginalFilename();
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            }
-            String filename = UUID.randomUUID().toString() + extension;
-
-            // 保存文件
-            File destFile = new File(uploadPath + filename);
-            photo.transferTo(destFile);
-
-            log.info("Photo saved to: {}", destFile.getAbsolutePath());
-
-            // 返回相对URL (用于访问 /uploads/service_records/{planId}/{filename})
-            return "/" + UPLOAD_DIR + planId + "/" + filename;
-        } catch (IOException e) {
+            return null;
+        } catch (Exception e) {
             log.error("Save photo failed", e);
             return null;
         }

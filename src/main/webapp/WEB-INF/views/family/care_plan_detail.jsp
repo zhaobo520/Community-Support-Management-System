@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -49,12 +49,12 @@
             margin-right: 10px;
         }
         .badge-pending { background: #FFF3E0; color: #E65100; }
-        .badge-approved { background: #E3F2FD; color: #1565C0; }
+        .badge-approved { background: #FBE9E7; color: #B71C1C; }
         .badge-rejected { background: #FFEBEE; color: #C62828; }
-        .badge-active { background: #E8F5E9; color: #2E7D32; }
+        .badge-active { background: #FBE9E7; color: #B71C1C; }
         .badge-completed { background: #E0E0E0; color: #424242; }
         .badge-unclaimed { background: #FFF8E1; color: #F57F17; }
-        .badge-claimed { background: #E8F5E9; color: #2E7D32; }
+        .badge-claimed { background: #FBE9E7; color: #B71C1C; }
         .info-section {
             background: #FFF5F5;
             border-radius: 4px;
@@ -169,7 +169,7 @@
             align-items: center;
             gap: 15px;
             padding: 15px;
-            background: #f5f5f5;
+            background: #FAF5F0;
             border-radius: 4px;
             margin: 15px 0;
         }
@@ -204,9 +204,9 @@
             border-radius: 4px;
         }
         .message.success {
-            background: #E8F5E9;
-            color: #2E7D32;
-            border-left: 4px solid #4CAF50;
+            background: #FBE9E7;
+            color: #B71C1C;
+            border-left: 4px solid #D32F2F;
         }
         .message.error {
             background: #FFEBEE;
@@ -410,3 +410,4 @@
     </script>
 </body>
 </html>
+

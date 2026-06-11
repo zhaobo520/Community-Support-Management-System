@@ -48,18 +48,36 @@ public class VolunteerScheduleServiceImpl implements VolunteerScheduleService {
                 String timeSlot = parts[1];
                 
                 VolunteerSchedule existing = scheduleMapper.findOne(volunteerId, dayOfWeek, timeSlot);
-                
+
+                boolean isVolunteerOwned = existing != null && "VOLUNTEER".equals(existing.getAssignSource());
+                boolean isRejectedAdmin = existing != null
+                        && "ADMIN".equals(existing.getAssignSource())
+                        && "REJECTED".equals(existing.getConfirmStatus());
+                boolean isConfirmedAdmin = existing != null
+                        && "ADMIN".equals(existing.getAssignSource())
+                        && "CONFIRMED".equals(existing.getConfirmStatus());
+
                 if ("empty".equals(status)) {
-                    // 删除志愿者自己创建的记录
-                    if (existing != null && "VOLUNTEER".equals(existing.getAssignSource())) {
+                    // 志愿者可清掉：自己的、已拒绝的管理员指派、已同意的管理员指派
+                    if (isVolunteerOwned || isRejectedAdmin || isConfirmedAdmin) {
                         scheduleMapper.delete(volunteerId, dayOfWeek, timeSlot);
                     }
-                } else if ("available".equals(status) || "busy".equals(status)) {
-                    int isAvailable = "available".equals(status) ? 1 : 0;
-                    
-                    if (existing != null && "VOLUNTEER".equals(existing.getAssignSource())) {
+                } else if ("available".equals(status) || "busy".equals(status) || "standby".equals(status)) {
+                    // isAvailable: 1=可服务, 2=备班, 0=忙碌
+                    int isAvailable = "available".equals(status) ? 1 : ("standby".equals(status) ? 2 : 0);
+
+                    if (isVolunteerOwned) {
                         // 更新志愿者自己创建的排班
                         existing.setIsAvailable(isAvailable);
+                        existing.setConfirmStatus("CONFIRMED");
+                        existing.setRejectReason(null);
+                        scheduleMapper.update(existing);
+                    } else if (isRejectedAdmin || isConfirmedAdmin) {
+                        // 志愿者覆盖管理员指派（已拒绝/已同意的） → 转为志愿者自己的设置
+                        existing.setIsAvailable(isAvailable);
+                        existing.setAssignSource("VOLUNTEER");
+                        existing.setConfirmStatus("CONFIRMED");
+                        existing.setRejectReason(null);
                         scheduleMapper.update(existing);
                     } else if (existing == null) {
                         // 不存在时插入新的志愿者排班
@@ -73,7 +91,7 @@ public class VolunteerScheduleServiceImpl implements VolunteerScheduleService {
                         newSchedule.setRejectReason(null);
                         scheduleMapper.insert(newSchedule);
                     }
-                    // 如果existing是管理员指派的，志愿者不能通过普通保存来修改
+                    // 仍为 ADMIN/PENDING 的行：志愿者要走 confirm 流程才能改
                 }
             }
             return true;
@@ -85,44 +103,65 @@ public class VolunteerScheduleServiceImpl implements VolunteerScheduleService {
 
     @Override
     @Transactional
-    public boolean assignScheduleByAdmin(Long volunteerId, Map<String, Boolean> scheduleData) {
+    public boolean assignScheduleByAdmin(Long volunteerId, Map<String, String> scheduleData) {
         try {
-            for (Map.Entry<String, Boolean> entry : scheduleData.entrySet()) {
+            for (Map.Entry<String, String> entry : scheduleData.entrySet()) {
                 String key = entry.getKey();
-                boolean isAvailable = entry.getValue();
-                
+                String status = entry.getValue(); // "available", "standby", or "false"/null
+
                 String[] parts = key.split("_");
                 if (parts.length < 2) continue;
-                
+
                 int dayOfWeek = Integer.parseInt(parts[0]);
                 String timeSlot = parts[1];
-                
+
                 VolunteerSchedule existing = scheduleMapper.findOne(volunteerId, dayOfWeek, timeSlot);
-                
+
+                boolean isAssign = "available".equals(status) || "standby".equals(status);
+                // isAvailable: 1=可服务, 2=备班
+                int isAvailableVal = "standby".equals(status) ? 2 : 1;
+
                 if (existing != null && "ADMIN".equals(existing.getAssignSource())) {
-                    // 更新管理员已指派的记录
-                    if (isAvailable) {
-                        existing.setIsAvailable(1);
-                        existing.setConfirmStatus("PENDING");
-                        existing.setRejectReason(null);
-                        scheduleMapper.update(existing);
+                    if (isAssign) {
+                        // 仅在「值有变化」或「之前被志愿者拒过」时才重置为 PENDING，
+                        // 否则保持原状态（避免把已 CONFIRMED 的全部重置为待确认）
+                        boolean valueChanged = existing.getIsAvailable() == null
+                                || existing.getIsAvailable() != isAvailableVal;
+                        boolean wasRejected = "REJECTED".equals(existing.getConfirmStatus());
+
+                        if (valueChanged || wasRejected) {
+                            existing.setIsAvailable(isAvailableVal);
+                            existing.setConfirmStatus("PENDING");
+                            existing.setRejectReason(null);
+                            scheduleMapper.update(existing);
+                        }
+                        // else: 值未变 且 已 CONFIRMED → 跳过
                     } else {
-                        // 取消管理员指派
-                        scheduleMapper.delete(volunteerId, dayOfWeek, timeSlot);
+                        // 取消管理员指派；保留 REJECTED 记录，便于管理员查看历史
+                        if (!"REJECTED".equals(existing.getConfirmStatus())) {
+                            scheduleMapper.delete(volunteerId, dayOfWeek, timeSlot);
+                        }
                     }
-                } else if (existing == null && isAvailable) {
-                    // 新增管理员指派
+                } else if (existing == null && isAssign) {
+                    // 新增管理员指派，PENDING 等志愿者确认
                     VolunteerSchedule newSchedule = new VolunteerSchedule();
                     newSchedule.setVolunteerId(volunteerId);
                     newSchedule.setDayOfWeek(dayOfWeek);
                     newSchedule.setTimeSlot(timeSlot);
-                    newSchedule.setIsAvailable(1);
+                    newSchedule.setIsAvailable(isAvailableVal);
                     newSchedule.setAssignSource("ADMIN");
                     newSchedule.setConfirmStatus("PENDING");
                     newSchedule.setRejectReason(null);
                     scheduleMapper.insert(newSchedule);
+                } else if (existing != null && "VOLUNTEER".equals(existing.getAssignSource()) && isAssign) {
+                    // 管理员指派覆盖志愿者已标记的格子 → 转为 ADMIN/PENDING 等志愿者再次确认
+                    existing.setIsAvailable(isAvailableVal);
+                    existing.setAssignSource("ADMIN");
+                    existing.setConfirmStatus("PENDING");
+                    existing.setRejectReason(null);
+                    scheduleMapper.update(existing);
                 }
-                // 对志愿者自己设置的排班不做修改
+                // existing 是 VOLUNTEER 且 !isAssign：保留志愿者自己的记录，不动
             }
             return true;
         } catch (Exception e) {
@@ -143,7 +182,7 @@ public class VolunteerScheduleServiceImpl implements VolunteerScheduleService {
             
             if (agree) {
                 schedule.setConfirmStatus("CONFIRMED");
-                schedule.setIsAvailable(1);
+                // isAvailable 保持原值不变（1=可服务, 2=备班）
                 schedule.setRejectReason(null);
             } else {
                 schedule.setConfirmStatus("REJECTED");
@@ -160,32 +199,71 @@ public class VolunteerScheduleServiceImpl implements VolunteerScheduleService {
     }
 
     @Override
-    public Map<String, List<String>> getAvailableVolunteersSummary() {
-        Map<String, List<String>> summary = new java.util.HashMap<>();
-        
-        // 查询所有可用的排班
+    public Map<String, Map<String, Object>> getAvailableVolunteersSummary() {
+        Map<String, Map<String, Object>> summary = new HashMap<>();
+
+        // 查询所有可用的排班（仅 CONFIRMED）
         List<VolunteerSchedule> schedules = scheduleMapper.findAllAvailableWithVolunteer();
-        
-        // 按时间段分组
+
+        // 按时间段分组并区分 available / standby
         for (VolunteerSchedule schedule : schedules) {
             String key = schedule.getDayOfWeek() + "_" + schedule.getTimeSlot();
-            
-            if (!summary.containsKey(key)) {
-                summary.put(key, new java.util.ArrayList<>());
+            // isAvailable: 1=可服务, 2=备班
+            String bucket = schedule.getIsAvailable() != null && schedule.getIsAvailable() == 2
+                    ? "standby" : "available";
+
+            Map<String, Object> entry = summary.get(key);
+            if (entry == null) {
+                entry = new HashMap<>();
+                entry.put("available", new java.util.ArrayList<String>());
+                entry.put("standby", new java.util.ArrayList<String>());
+                summary.put(key, entry);
             }
-            
-            summary.get(key).add(schedule.getVolunteerName());
+            @SuppressWarnings("unchecked")
+            List<String> list = (List<String>) entry.get(bucket);
+            list.add(schedule.getVolunteerName());
         }
-        
+
+        // 计算总数、状态和拼接名字
+        for (Map.Entry<String, Map<String, Object>> e : summary.entrySet()) {
+            Map<String, Object> entry = e.getValue();
+            @SuppressWarnings("unchecked")
+            List<String> available = (List<String>) entry.get("available");
+            @SuppressWarnings("unchecked")
+            List<String> standby = (List<String>) entry.get("standby");
+
+            String status;
+            if (available != null && !available.isEmpty()) {
+                status = "available";
+            } else if (standby != null && !standby.isEmpty()) {
+                status = "standby";
+            } else {
+                status = "empty";
+            }
+            entry.put("status", status);
+            entry.put("count", (available == null ? 0 : available.size())
+                    + (standby == null ? 0 : standby.size()));
+
+            // 拼接名字：可服务在前，备班在后，备班加 (备班) 标记
+            java.util.List<String> labeled = new java.util.ArrayList<>();
+            if (available != null) labeled.addAll(available);
+            if (standby != null) {
+                for (String name : standby) labeled.add(name + "(备班)");
+            }
+            entry.put("names", String.join(", ", labeled));
+        }
+
         return summary;
     }
 
     @Override
-    public Map<String, String> detectScheduleConflicts(Long volunteerId, Map<String, Boolean> scheduleData) {
+    public Map<String, String> detectScheduleConflicts(Long volunteerId, Map<String, String> scheduleData) {
         Map<String, String> conflicts = new HashMap<>();
 
-        for (Map.Entry<String, Boolean> entry : scheduleData.entrySet()) {
-            if (!entry.getValue()) continue; // 只检测要设置为可用的时段
+        for (Map.Entry<String, String> entry : scheduleData.entrySet()) {
+            String status = entry.getValue();
+            // 只检测要设置为可用/备班的时段，false/null 跳过
+            if (!"available".equals(status) && !"standby".equals(status)) continue;
 
             String key = entry.getKey(); // 如 "1_MORNING"
             String[] parts = key.split("_");

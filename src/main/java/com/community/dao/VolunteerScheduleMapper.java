@@ -49,6 +49,11 @@ public interface VolunteerScheduleMapper {
      * @param dayOfWeek 星期几 (1-7)
      * @param timeSlot 时间段
      */
-    List<VolunteerSchedule> findAvailableByTime(@Param("dayOfWeek") Integer dayOfWeek, 
+    List<VolunteerSchedule> findAvailableByTime(@Param("dayOfWeek") Integer dayOfWeek,
                                               @Param("timeSlot") String timeSlot);
+
+    /**
+     * 周滚动：删除志愿者自定义的排班，保留 ADMIN 指派模板
+     */
+    int deleteVolunteerOwnedSchedules();
 }

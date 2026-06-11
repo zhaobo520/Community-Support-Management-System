@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -69,9 +69,9 @@
             border-radius: 4px;
         }
         .message.success {
-            background: #E8F5E9;
-            color: #2E7D32;
-            border-left: 4px solid #4CAF50;
+            background: #FBE9E7;
+            color: #B71C1C;
+            border-left: 4px solid #D32F2F;
         }
         .message.error {
             background: #FFEBEE;
@@ -169,11 +169,11 @@
             transition: all 0.3s;
         }
         .btn-approve {
-            background: #4CAF50;
+            background: #D32F2F;
             color: white;
         }
         .btn-approve:hover {
-            background: #388E3C;
+            background: #B71C1C;
         }
         .btn-reject {
             background: #F44336;
@@ -498,3 +498,4 @@
     </script>
 </body>
 </html>
+

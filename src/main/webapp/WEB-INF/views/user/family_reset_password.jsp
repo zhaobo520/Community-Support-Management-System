@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -62,12 +62,12 @@
       background: linear-gradient(90deg, #B71C1C 0%, #D32F2F 100%);
       padding: 30px;
       text-align: center;
-      color: white;
+      color: #FFFFFF;
     }
     .reset-header h1 {
       margin: 0;
       font-size: 24px;
-      font-weight: 700;
+      font-weight: 700; color: #FFFFFF; text-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }
     .reset-header p {
       margin: 10px 0 0 0;
@@ -234,3 +234,4 @@ function validatePassword() {
 
 </body>
 </html>
+

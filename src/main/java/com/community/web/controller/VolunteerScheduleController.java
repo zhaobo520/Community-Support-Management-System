@@ -34,39 +34,51 @@ public class VolunteerScheduleController {
         }
 
         List<VolunteerSchedule> schedules = scheduleService.getSchedule(currentUser.getId());
-        
-        // 将列表转换为Map，值为状态: available/busy/null
+
+        // 志愿者自己标记的格子（可服务/忙碌/备班）
         Map<String, String> scheduleMap = new HashMap<>();
+        // 管理员指派的格子（PENDING 或 CONFIRMED），前端会锁住不让志愿者直接点
+        Map<String, String> adminScheduleMap = new HashMap<>();
+        // 管理员指派的状态：'pending' 或 'confirmed'，决定锁的视觉表现
+        Map<String, String> adminLockStatus = new HashMap<>();
         java.util.List<VolunteerSchedule> pendingAssignments = new java.util.ArrayList<>();
         java.util.List<VolunteerSchedule> rejectedAssignments = new java.util.ArrayList<>();
-        
+
         for (VolunteerSchedule s : schedules) {
             String key = s.getDayOfWeek() + "_" + s.getTimeSlot();
-            
-            // 显示在网格中的时段：
-            // 1. 志愿者自己设定的时段（可服务或忙碌）
-            // 2. 管理员指派且已确认的时段（总是显示为可服务）
+
             if ("VOLUNTEER".equals(s.getAssignSource())) {
-                scheduleMap.put(key, s.getIsAvailable() == 1 ? "available" : "busy");
-            } else if ("ADMIN".equals(s.getAssignSource()) && "CONFIRMED".equals(s.getConfirmStatus()) && s.getIsAvailable() == 1) {
-                scheduleMap.put(key, "available");
-            }
-            
-            // 管理员指派待确认的
-            if ("ADMIN".equals(s.getAssignSource()) && "PENDING".equals(s.getConfirmStatus())) {
-                pendingAssignments.add(s);
-            }
-            
-            // 已拒绝的
-            if ("ADMIN".equals(s.getAssignSource()) && "REJECTED".equals(s.getConfirmStatus())) {
-                rejectedAssignments.add(s);
+                // isAvailable: 1=可服务, 2=备班, 0=忙碌
+                String status;
+                if (s.getIsAvailable() == 1) status = "available";
+                else if (s.getIsAvailable() == 2) status = "standby";
+                else status = "busy";
+                scheduleMap.put(key, status);
+            } else if ("ADMIN".equals(s.getAssignSource())) {
+                // 管理员指派：PENDING 与 CONFIRMED 都显示在主网格，但用 adminScheduleMap 独立标识
+                if ("PENDING".equals(s.getConfirmStatus()) || "CONFIRMED".equals(s.getConfirmStatus())) {
+                    String adminStatus = s.getIsAvailable() == 2 ? "standby" : "available";
+                    adminScheduleMap.put(key, adminStatus);
+                    adminLockStatus.put(key, "PENDING".equals(s.getConfirmStatus()) ? "pending" : "confirmed");
+                }
+                if ("PENDING".equals(s.getConfirmStatus())) {
+                    pendingAssignments.add(s);
+                } else if ("REJECTED".equals(s.getConfirmStatus())) {
+                    rejectedAssignments.add(s);
+                }
             }
         }
 
         model.addAttribute("scheduleMap", scheduleMap);
+        model.addAttribute("adminScheduleMap", adminScheduleMap);
+        model.addAttribute("adminLockStatus", adminLockStatus);
         model.addAttribute("pendingAssignments", pendingAssignments);
         model.addAttribute("rejectedAssignments", rejectedAssignments);
         model.addAttribute("currentUser", currentUser);
+
+        // 添加所有志愿者的汇总数据（用于右上角悬浮小表格）
+        Map<String, Map<String, Object>> volunteerSummary = scheduleService.getAvailableVolunteersSummary();
+        model.addAttribute("volunteerSummary", volunteerSummary);
         
         return "volunteer/schedule";
     }

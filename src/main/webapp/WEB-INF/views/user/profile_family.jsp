@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
@@ -219,7 +219,7 @@
         }
 
         .form-group input:disabled {
-            background: #f5f5f5;
+            background: #FAF5F0;
             color: #999;
             cursor: not-allowed;
         }
@@ -324,7 +324,7 @@
                         <c:when test="${not empty currentUser.avatar}">
                             <c:choose>
                                 <c:when test="${fn:startsWith(currentUser.avatar, pageContext.request.contextPath)}">
-                                    <img src="${currentUser.avatar}" alt="" id="avatarPreview" style="width:100%;height:100%;object-fit:cover;" />
+                                    <img src="${pageContext.request.contextPath}${currentUser.avatar}" alt="" id="avatarPreview" style="width:100%;height:100%;object-fit:cover;" />
                                 </c:when>
                                 <c:otherwise>
                                     <img src="${pageContext.request.contextPath}${currentUser.avatar}" alt="" id="avatarPreview" style="width:100%;height:100%;object-fit:cover;" />
@@ -618,3 +618,5 @@ function beforeSubmit() {
 </script>
 </body>
 </html>
+
+

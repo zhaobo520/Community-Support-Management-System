@@ -3,30 +3,31 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
-  <!-- Component scan for service/dao -->
   <context:component-scan base-package="com.community"/>
 
-  <!-- Druid datasource configured for MySQL 8 -->
+  <context:property-placeholder location="classpath:jdbc.properties" ignore-resource-not-found="false"/>
+
   <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
-    <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
-    <property name="url" value="jdbc:mysql://localhost:3306/community_help?useSSL=false&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true"/>
-    <property name="username" value="root"/>
-    <property name="password" value="123456"/>
-    <property name="initialSize" value="3"/>
-    <property name="minIdle" value="3"/>
-    <property name="maxActive" value="20"/>
-    <property name="maxWait" value="60000"/>
-    <property name="validationQuery" value="SELECT 1"/>
-    <property name="testOnBorrow" value="false"/>
-    <property name="testWhileIdle" value="true"/>
-    <property name="poolPreparedStatements" value="true"/>
+    <property name="driverClassName" value="${jdbc.driverClassName}"/>
+    <property name="url" value="${jdbc.url}"/>
+    <property name="username" value="${jdbc.username}"/>
+    <property name="password" value="${jdbc.password}"/>
+    <property name="initialSize" value="${jdbc.initialSize}"/>
+    <property name="minIdle" value="${jdbc.minIdle}"/>
+    <property name="maxActive" value="${jdbc.maxActive}"/>
+    <property name="maxWait" value="${jdbc.maxWait}"/>
+    <property name="validationQuery" value="${jdbc.validationQuery}"/>
+    <property name="testOnBorrow" value="${jdbc.testOnBorrow}"/>
+    <property name="testWhileIdle" value="${jdbc.testWhileIdle}"/>
+    <property name="poolPreparedStatements" value="${jdbc.poolPreparedStatements}"/>
   </bean>
 
-  <!-- MyBatis SqlSessionFactory -->
   <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
     <property name="dataSource" ref="dataSource"/>
     <property name="configLocation" value="classpath:mybatis-config.xml"/>
@@ -34,17 +35,17 @@
     <property name="typeAliasesPackage" value="com.community.domain"/>
   </bean>
 
-  <!-- Mapper interface scan -->
   <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
     <property name="basePackage" value="com.community.dao"/>
     <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
   </bean>
 
-  <!-- Transaction manager -->
   <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
     <property name="dataSource" ref="dataSource"/>
   </bean>
 
   <tx:annotation-driven transaction-manager="transactionManager"/>
+
+  <task:annotation-driven/>
 
 </beans>

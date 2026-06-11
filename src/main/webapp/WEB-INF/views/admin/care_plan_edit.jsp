@@ -284,7 +284,7 @@
                         <option value="">暂不分配</option>
                         <c:forEach items="${volunteers}" var="volunteer">
                             <option value="${volunteer.userId}" ${plan.assignedVolunteerId == volunteer.userId ? 'selected' : ''}>
-                                ${volunteer.realName} (${volunteer.phone})
+                                ${volunteer.fullName} (${volunteer.phone})
                             </option>
                         </c:forEach>
                     </select>

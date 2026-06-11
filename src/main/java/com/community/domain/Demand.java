@@ -2,6 +2,7 @@ package com.community.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * Demand Entity
@@ -17,7 +18,9 @@ public class Demand implements Serializable {
     private String urgency;
     private String requiredSkill;
     private String timeRequirement;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private Date expectedStartTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private Date expectedEndTime;
     private String description;
     private String serviceAddress;
@@ -29,6 +32,7 @@ public class Demand implements Serializable {
     private String reviewComment;
     private Long taskId;
     private String attachmentUrl;  // 附件/情景图片URL
+    private Long intendedVolunteerId;  // 意向志愿者ID（可选）
     private Date createdAt;
     private Date updatedAt;
 
@@ -37,6 +41,7 @@ public class Demand implements Serializable {
     private User reviewer;
     private HelpTarget target;
     private Task task;
+    private VolunteerProfile intendedVolunteer;  // 意向志愿者对象
 
     public Demand() {
     }
@@ -247,6 +252,22 @@ public class Demand implements Serializable {
 
     public void setTask(Task task) {
         this.task = task;
+    }
+
+    public Long getIntendedVolunteerId() {
+        return intendedVolunteerId;
+    }
+
+    public void setIntendedVolunteerId(Long intendedVolunteerId) {
+        this.intendedVolunteerId = intendedVolunteerId;
+    }
+
+    public VolunteerProfile getIntendedVolunteer() {
+        return intendedVolunteer;
+    }
+
+    public void setIntendedVolunteer(VolunteerProfile intendedVolunteer) {
+        this.intendedVolunteer = intendedVolunteer;
     }
 
     @Override

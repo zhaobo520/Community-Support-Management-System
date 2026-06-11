@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
@@ -226,7 +226,7 @@
         <c:when test="${not empty currentUser.avatar}">
           <c:choose>
             <c:when test="${fn:startsWith(currentUser.avatar, pageContext.request.contextPath)}">
-              <img src="${currentUser.avatar}" alt="" />
+              <img src="${pageContext.request.contextPath}${currentUser.avatar}" alt="" />
             </c:when>
             <c:otherwise>
               <img src="${pageContext.request.contextPath}${currentUser.avatar}" alt="" />
@@ -310,3 +310,4 @@
 </div>
 </body>
 </html>
+

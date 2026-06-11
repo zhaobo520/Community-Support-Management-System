@@ -23,28 +23,35 @@ public interface VolunteerScheduleService {
 
     /**
      * 管理员指派排班
+     * @param scheduleData Map<key, status>，status可以是 "available"/"standby"/false(取消)
      */
-    boolean assignScheduleByAdmin(Long volunteerId, Map<String, Boolean> scheduleData);
+    boolean assignScheduleByAdmin(Long volunteerId, Map<String, String> scheduleData);
 
     /**
      * 志愿者确认或拒绝管理员指派的排班
      */
-    boolean confirmAdminAssignment(Long volunteerId, Integer dayOfWeek, String timeSlot, 
+    boolean confirmAdminAssignment(Long volunteerId, Integer dayOfWeek, String timeSlot,
                                    boolean agree, String reason);
 
     /**
      * 获取所有可服务志愿者的汇总（用于dashboard展示）
-     * @return Map<时间key, List<志愿者名称>>
+     * @return Map<时间key, Map<字段, 值>>
+     *   内层 Map 字段:
+     *     "status": "available" | "standby" | "empty"
+     *     "count": Integer 总人数
+     *     "names": String 用 ", " 拼接的所有志愿者名
+     *     "available": List<String> 可服务志愿者名单
+     *     "standby": List<String> 备班志愿者名单
      */
-    Map<String, List<String>> getAvailableVolunteersSummary();
+    Map<String, Map<String, Object>> getAvailableVolunteersSummary();
 
     /**
      * 检测排班冲突
      * @param volunteerId 志愿者ID
-     * @param scheduleData 排班数据 Map<dayOfWeek_timeSlot, boolean>
+     * @param scheduleData 排班数据 Map<dayOfWeek_timeSlot, status>
      * @return 冲突信息列表 Map<day_time, taskTitle>
      */
-    Map<String, String> detectScheduleConflicts(Long volunteerId, Map<String, Boolean> scheduleData);
+    Map<String, String> detectScheduleConflicts(Long volunteerId, Map<String, String> scheduleData);
 
     /**
      * 获取推荐的志愿者（智能推荐）

@@ -81,6 +81,11 @@ public class DemandServiceImpl implements DemandService {
     }
 
     @Override
+    public List<Demand> findByStatus(String status) {
+        return demandMapper.findByStatus(status);
+    }
+
+    @Override
     public List<Demand> findApprovedDemands() {
         return demandMapper.findApprovedDemands();
     }

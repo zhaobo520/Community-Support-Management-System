@@ -120,7 +120,7 @@
   <select id="checkIdCard" resultType="int">
     SELECT COUNT(*)
     FROM elderly_info
-    WHERE id_card = #{idCard}
+    WHERE id_card = #{idCard} AND status = 1
     <if test="excludeId != null">
       AND id != #{excludeId}
     </if>

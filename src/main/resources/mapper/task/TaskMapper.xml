@@ -39,6 +39,14 @@
       <result column="d_attachment_url" property="attachmentUrl"/>
       <result column="d_description" property="description"/>
       <result column="d_contact_person" property="contactPerson"/>
+      <result column="d_intended_volunteer_id" property="intendedVolunteerId"/>
+      <association property="intendedVolunteer" javaType="com.community.domain.VolunteerProfile">
+        <id column="dv_id" property="id"/>
+        <result column="dv_user_id" property="userId"/>
+        <result column="dv_full_name" property="fullName"/>
+        <result column="dv_phone" property="phone"/>
+        <result column="dv_skills" property="skills"/>
+      </association>
     </association>
   </resultMap>
 
@@ -79,21 +87,27 @@
   </select>
 
   <select id="findPendingTasks" resultMap="TaskWithDemandResultMap">
-    SELECT t.*, 
-           d.id as d_id, d.title as d_title, 
-           d.attachment_url as d_attachment_url, d.description as d_description
+    SELECT t.*,
+           d.id as d_id, d.title as d_title,
+           d.attachment_url as d_attachment_url, d.description as d_description,
+           d.intended_volunteer_id as d_intended_volunteer_id,
+           dv.id as dv_id, dv.user_id as dv_user_id,
+           dv_u.full_name as dv_full_name, dv_u.phone as dv_phone,
+           dv.skills as dv_skills
     FROM task_info t
     LEFT JOIN demand d ON t.demand_id = d.id
+    LEFT JOIN volunteer_profile dv ON d.intended_volunteer_id = dv.id
+    LEFT JOIN sys_user dv_u ON dv.user_id = dv_u.id
     WHERE t.status = 'PENDING'
     <if test="taskType != null and taskType != ''">
       AND t.task_type = #{taskType}
     </if>
-    ORDER BY 
-      CASE t.priority 
-        WHEN 'URGENT' THEN 1 
-        WHEN 'HIGH' THEN 2 
-        WHEN 'MEDIUM' THEN 3 
-        ELSE 4 
+    ORDER BY
+      CASE t.priority
+        WHEN 'URGENT' THEN 1
+        WHEN 'HIGH' THEN 2
+        WHEN 'MEDIUM' THEN 3
+        ELSE 4
       END,
       t.scheduled_date ASC
   </select>
@@ -114,12 +128,18 @@
            v.avatar as volunteer_avatar,
            d.id as d_id, d.title as d_title,
            d.attachment_url as d_attachment_url, d.description as d_description,
-           d.contact_person as d_contact_person
+           d.contact_person as d_contact_person,
+           d.intended_volunteer_id as d_intended_volunteer_id,
+           dv.id as dv_id, dv.user_id as dv_user_id,
+           dv_u.full_name as dv_full_name, dv_u.phone as dv_phone,
+           dv.skills as dv_skills
     FROM task_info t
     LEFT JOIN elderly_info e ON t.elderly_id = e.id
     LEFT JOIN demand d ON t.demand_id = d.id
     LEFT JOIN elderly_info ei ON d.target_id = ei.id
     LEFT JOIN sys_user v ON t.volunteer_id = v.id
+    LEFT JOIN volunteer_profile dv ON d.intended_volunteer_id = dv.id
+    LEFT JOIN sys_user dv_u ON dv.user_id = dv_u.id
     WHERE t.id = #{id}
   </select>
 

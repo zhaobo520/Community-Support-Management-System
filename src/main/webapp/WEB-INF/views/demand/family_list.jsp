@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -121,7 +121,7 @@
       gap: 16px;
     }
     .demand-card {
-      background: #fafafa;
+      background: #FAF5F0;
       border-radius: 8px;
       padding: 20px 24px;
       border-left: 4px solid #D32F2F;
@@ -188,10 +188,10 @@
       font-weight: 600;
     }
     .status-PENDING { background: #FFF8E1; color: #F57C00; }
-    .status-APPROVED { background: #E8F5E9; color: #2E7D32; }
+    .status-APPROVED { background: #FBE9E7; color: #B71C1C; }
     .status-REJECTED { background: #FFEBEE; color: #C62828; }
     .status-MATCHED { background: #FFF5F5; color: #D32F2F; }
-    .status-CLOSED { background: #F5F5F5; color: #666; }
+    .status-CLOSED { background: #FAF5F0; color: #666; }
     .empty-state {
       text-align: center;
       padding: 60px 20px;
@@ -213,17 +213,17 @@
       font-size: 12px;
       font-weight: 600;
     }
-    .urgency-LOW { background: #E8F5E9; color: #2E7D32; }
+    .urgency-LOW { background: #FBE9E7; color: #B71C1C; }
     .urgency-MEDIUM { background: #FFF8E1; color: #F57C00; }
     .urgency-HIGH { background: #FFF3E0; color: #E65100; }
     .urgency-URGENT { background: #FFEBEE; color: #C62828; }
     .msg-success {
-      background: #E8F5E9;
-      border-left: 4px solid #4CAF50;
+      background: #FBE9E7;
+      border-left: 4px solid #D32F2F;
       padding: 14px 16px;
       border-radius: 6px;
       margin-bottom: 20px;
-      color: #2E7D32;
+      color: #B71C1C;
       font-size: 13px;
     }
     .msg-error {
@@ -328,6 +328,9 @@
                 <c:if test="${not empty demand.requiredSkill}">
                   <span class="meta-tag">${demand.requiredSkill}</span>
                 </c:if>
+                <c:if test="${not empty demand.intendedVolunteer}">
+                  <span class="meta-tag" style="background:rgba(16,185,129,0.1);color:#10b981;">意向：${demand.intendedVolunteer.fullName}</span>
+                </c:if>
               </div>
 
               <div class="demand-desc">${demand.description}</div>
@@ -349,3 +352,4 @@
 </div>
 </body>
 </html>
+

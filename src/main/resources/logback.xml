@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!--
+        Don't use ConsoleAppender: Tomcat startup.bat under Windows spawns a console
+        window whose stdout has no reader. When log volume fills the OS pipe buffer,
+        PrintStream.write() blocks forever and every request thread that emits a log
+        line stalls. We write only to a rolling file instead.
+    -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${catalina.base:-.}/logs/community_help.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${catalina.base:-.}/logs/community_help.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>14</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <logger name="com.community" level="INFO"/>
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.mybatis" level="WARN"/>
+    <logger name="org.apache.ibatis" level="WARN"/>
+
+    <root level="INFO">
+        <appender-ref ref="FILE"/>
+    </root>
+
+</configuration>

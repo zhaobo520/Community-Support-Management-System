@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -80,9 +80,9 @@
             border-radius: 4px;
         }
         .message.success {
-            background: #E8F5E9;
-            color: #2E7D32;
-            border-left: 4px solid #4CAF50;
+            background: #FBE9E7;
+            color: #B71C1C;
+            border-left: 4px solid #D32F2F;
         }
         .message.error {
             background: #FFEBEE;
@@ -123,13 +123,13 @@
             font-weight: bold;
         }
         .status-pending { background: #FFF3E0; color: #E65100; }
-        .status-approved { background: #E3F2FD; color: #1565C0; }
+        .status-approved { background: #FBE9E7; color: #B71C1C; }
         .status-rejected { background: #FFEBEE; color: #C62828; }
-        .status-active { background: #E8F5E9; color: #2E7D32; }
+        .status-active { background: #FBE9E7; color: #B71C1C; }
         .status-completed { background: #E0E0E0; color: #424242; }
         .status-cancelled { background: #FFEBEE; color: #C62828; }
         .status-unclaimed { background: #FFF8E1; color: #F57F17; }
-        .status-claimed { background: #E8F5E9; color: #2E7D32; }
+        .status-claimed { background: #FBE9E7; color: #B71C1C; }
         .plan-info {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -294,3 +294,4 @@
     </div>
 </body>
 </html>
+

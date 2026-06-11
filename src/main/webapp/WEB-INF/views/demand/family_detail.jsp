@@ -12,32 +12,65 @@
     body {
       background: #FAF5F0;
       min-height: 100vh;
-      padding: 40px 20px;
+      font-family: 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
-    .family-header {
-      background: linear-gradient(90deg, #B71C1C 0%, #D32F2F 100%);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      padding: 20px 60px;
+    .gov-header {
+      background: linear-gradient(135deg, #B71C1C 0%, #D32F2F 100%);
+      height: 64px;
+      padding: 0 32px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 40px;
-      border-radius: 4px;
+      justify-content: space-between;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      position: relative;
       color: white;
     }
-    .family-header h1 { font-size: 24px; color: white; }
-    .family-header .actions a {
+    .gov-header::before {
+      content: '★';
+      position: absolute;
+      left: 24px;
+      color: rgba(255,255,255,0.3);
+      font-size: 20px;
+    }
+    .gov-header h1 {
       color: white;
-      text-decoration: none;
-      margin-left: 20px;
+      font-size: 18px;
       font-weight: 600;
+      margin: 0 0 0 40px;
+      letter-spacing: 2px;
     }
-    .container { max-width: 900px; margin: 0 auto; }
+    .gov-header .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      color: rgba(255,255,255,0.9);
+      font-size: 13px;
+      flex-wrap: wrap;
+    }
+    .gov-header .nav-right a {
+      color: rgba(255,255,255,0.9);
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .gov-header .nav-right a:hover {
+      background: rgba(255,255,255,0.15);
+      color: white;
+    }
+    .page-wrap {
+      padding: 28px 20px 40px;
+    }
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+    }
     .content {
       background: #fff;
-      border-radius: 4px;
-      padding: 40px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      border-radius: 8px;
+      padding: 36px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      border: 1px solid #eee;
     }
     .header {
       margin-bottom: 32px;
@@ -74,6 +107,7 @@
     .status-APPROVED { background: rgba(16,185,129,0.15); color: #10b981; }
     .status-REJECTED { background: rgba(239,68,68,0.15); color: #ef4444; }
     .status-MATCHED { background: rgba(211,47,47,0.15); color: #D32F2F; }
+    .status-CLOSED { background: rgba(100,116,139,0.15); color: #64748b; }
     .section {
       margin-bottom: 28px;
     }
@@ -93,7 +127,8 @@
     .info-item {
       background: #f8fafc;
       padding: 14px;
-      border-radius: 4px;
+      border-radius: 6px;
+      border: 1px solid #edf2f7;
     }
     .info-label {
       font-size: 13px;
@@ -104,17 +139,20 @@
       font-size: 15px;
       color: #1e293b;
       font-weight: 600;
+      line-height: 1.6;
     }
     .description {
       background: #f8fafc;
       padding: 20px;
-      border-radius: 4px;
+      border-radius: 6px;
       line-height: 1.8;
       color: #475569;
+      border: 1px solid #edf2f7;
+      white-space: pre-wrap;
     }
     .review-box {
       padding: 16px;
-      border-radius: 4px;
+      border-radius: 6px;
       margin-bottom: 24px;
     }
     .review-box.approved {
@@ -128,13 +166,14 @@
     .actions {
       display: flex;
       gap: 12px;
+      flex-wrap: wrap;
       margin-top: 32px;
       padding-top: 24px;
       border-top: 2px solid #e2e8f0;
     }
     .btn {
       padding: 12px 24px;
-      border-radius: 4px;
+      border-radius: 6px;
       font-size: 15px;
       font-weight: 700;
       border: none;
@@ -142,6 +181,9 @@
       transition: all 0.3s;
       text-decoration: none;
       display: inline-block;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
     }
     .btn-edit {
       background: white;
@@ -151,9 +193,7 @@
     .btn-edit:hover {
       background: #D32F2F;
       color: white;
-    }
-    .btn-edit:hover {
-      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(211,47,47,0.3);
     }
     .btn-delete {
       background: #ef4444;
@@ -169,17 +209,45 @@
     .btn-back:hover {
       background: #cbd5e1;
     }
+    @media (max-width: 768px) {
+      .gov-header {
+        padding: 10px 16px;
+        height: auto;
+        min-height: 64px;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 8px;
+      }
+      .gov-header h1 {
+        margin-left: 32px;
+      }
+      .page-wrap {
+        padding: 20px 16px 32px;
+      }
+      .content {
+        padding: 24px;
+      }
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+      .title {
+        font-size: 22px;
+      }
+    }
   </style>
 </head>
 <body>
-<div class="family-header">
-  <h1>需求详情</h1>
-  <div class="actions">
-    <a href="${pageContext.request.contextPath}/demand/family/list">← 返回列表</a>
+<header class="gov-header">
+  <h1>家属服务中心</h1>
+  <div class="nav-right">
+    <span>当前页面：需求详情</span>
     <a href="${pageContext.request.contextPath}/user/family/dashboard">控制台</a>
+    <a href="${pageContext.request.contextPath}/demand/family/list">返回列表</a>
   </div>
-</div>
+</header>
 
+<div class="page-wrap">
 <div class="container">
   <div class="content">
     <div class="header">
@@ -206,7 +274,6 @@
       </div>
     </div>
 
-    <!-- 审核结果 -->
     <c:if test="${demand.status == 'APPROVED'}">
       <div class="review-box approved">
         <div style="font-weight:700;margin-bottom:8px;">您的需求已通过审核</div>
@@ -231,17 +298,15 @@
       </div>
     </c:if>
 
-    <!-- 需求描述 -->
     <div class="section">
       <div class="section-title">需求描述</div>
       <div class="description">${demand.description}</div>
     </div>
 
-    <!-- 情景图片 -->
     <c:if test="${not empty demand.attachmentUrl}">
       <div class="section">
         <div class="section-title">情景图片</div>
-        <div style="background:#f8fafc;padding:20px;border-radius:12px;text-align:center;">
+        <div style="background:#f8fafc;padding:20px;border-radius:6px;text-align:center;border:1px solid #edf2f7;">
           <img src="${pageContext.request.contextPath}${demand.attachmentUrl}" 
                alt="需求情景图片" 
                style="max-width:100%;max-height:400px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);cursor:pointer;"
@@ -251,7 +316,6 @@
       </div>
     </c:if>
 
-    <!-- 基本信息 -->
     <div class="section">
       <div class="section-title">基本信息</div>
       <div class="info-grid">
@@ -272,9 +336,7 @@
         </div>
         <div class="info-item">
           <div class="info-label">发布时间</div>
-          <div class="info-value">
-            <fmt:formatDate value="${demand.createdAt}" pattern="yyyy-MM-dd HH:mm"/>
-          </div>
+          <div class="info-value"><fmt:formatDate value="${demand.createdAt}" pattern="yyyy-MM-dd HH:mm"/></div>
         </div>
         <c:if test="${not empty demand.requiredSkill}">
           <div class="info-item">
@@ -282,10 +344,23 @@
             <div class="info-value">${demand.requiredSkill}</div>
           </div>
         </c:if>
+        <c:if test="${not empty demand.intendedVolunteer}">
+          <div class="info-item">
+            <div class="info-label">意向志愿者</div>
+            <div class="info-value">
+              ${demand.intendedVolunteer.fullName}
+              <c:if test="${not empty demand.intendedVolunteer.phone}">
+                <span style="color:#64748b;font-size:13px;"> · ${demand.intendedVolunteer.phone}</span>
+              </c:if>
+              <c:if test="${not empty demand.intendedVolunteer.skills}">
+                <div style="color:#64748b;font-size:12px;margin-top:4px;">技能：${demand.intendedVolunteer.skills}</div>
+              </c:if>
+            </div>
+          </div>
+        </c:if>
       </div>
     </div>
 
-    <!-- 服务信息 -->
     <div class="section">
       <div class="section-title">服务信息</div>
       <div class="info-grid">
@@ -310,23 +385,18 @@
         <c:if test="${not empty demand.expectedStartTime}">
           <div class="info-item">
             <div class="info-label">期望开始时间</div>
-            <div class="info-value">
-              <fmt:formatDate value="${demand.expectedStartTime}" pattern="yyyy-MM-dd HH:mm"/>
-            </div>
+            <div class="info-value"><fmt:formatDate value="${demand.expectedStartTime}" pattern="yyyy-MM-dd HH:mm"/></div>
           </div>
         </c:if>
         <c:if test="${not empty demand.expectedEndTime}">
           <div class="info-item">
             <div class="info-label">期望结束时间</div>
-            <div class="info-value">
-              <fmt:formatDate value="${demand.expectedEndTime}" pattern="yyyy-MM-dd HH:mm"/>
-            </div>
+            <div class="info-value"><fmt:formatDate value="${demand.expectedEndTime}" pattern="yyyy-MM-dd HH:mm"/></div>
           </div>
         </c:if>
       </div>
     </div>
 
-    <!-- 操作按钮 -->
     <div class="actions">
       <c:if test="${demand.status == 'PENDING'}">
         <a href="${pageContext.request.contextPath}/demand/family/edit/${demand.id}" class="btn btn-edit">编辑需求</a>
@@ -338,6 +408,7 @@
       <button class="btn btn-back" onclick="history.back()">← 返回</button>
     </div>
   </div>
+</div>
 </div>
 
 <script>

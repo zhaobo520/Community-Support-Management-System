@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="zh">
@@ -9,7 +9,7 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Nunito', sans-serif;
+      font-family: 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #FAF5F0;
       min-height: 100vh;
       padding: 40px 20px;
@@ -85,7 +85,7 @@
       border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 14px;
-      font-family: 'Nunito', sans-serif;
+      font-family: 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       transition: all 0.3s;
     }
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
@@ -158,7 +158,7 @@
       color: white;
     }
     .btn-cancel {
-      background: #f5f5f5;
+      background: #FAF5F0;
       color: #666;
       border: 1px solid #ddd;
     }
@@ -414,3 +414,4 @@ timeSelect.addEventListener('change', fetchRecommendations);
 </script>
 </body>
 </html>
+

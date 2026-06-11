@@ -441,6 +441,13 @@ public class UserController {
     update.setPhone(phone);
     update.setEmail(email);
     update.setAvatar(avatar);
+    
+    // 修正：从数据库获取当前密码，防止 update 方法将其覆盖为 null
+    User originalUser = userService.findById(id);
+    if (originalUser != null) {
+        update.setPassword(originalUser.getPassword());
+    }
+
     boolean success = userService.updateProfile(update);
     if (success) {
       User refreshed = userService.findById(id);
@@ -450,6 +457,42 @@ public class UserController {
       redirectAttributes.addFlashAttribute("msg", "资料更新失败，请稍后再试");
     }
     return "redirect:/user/profile";
+  }
+
+  /**
+   * AJAX更新头像
+   */
+  @PostMapping("/updateAvatar")
+  @ResponseBody
+  public Map<String, Object> updateAvatar(@RequestParam Long id,
+                                          @RequestParam String avatar,
+                                          HttpSession session) {
+    Map<String, Object> result = new HashMap<>();
+    try {
+      // 必须先获取原用户，防止丢失其他字段
+      User update = userService.findById(id);
+      if (update == null) {
+          result.put("success", false);
+          result.put("message", "用户不存在");
+          return result;
+      }
+      
+      update.setAvatar(avatar);
+      boolean success = userService.updateProfile(update);
+      if (success) {
+        User refreshed = userService.findById(id);
+        session.setAttribute("CURRENT_USER", refreshed);
+        result.put("success", true);
+        result.put("message", "头像更新成功");
+      } else {
+        result.put("success", false);
+        result.put("message", "头像更新失败");
+      }
+    } catch (Exception e) {
+      result.put("success", false);
+      result.put("message", "头像更新失败：" + e.getMessage());
+    }
+    return result;
   }
 
   /**
@@ -793,11 +836,19 @@ public class UserController {
       elderlyInfo.setFamilyPhone(currentUser.getPhone());
     }
 
-    boolean success = elderlyService.add(elderlyInfo);
+    boolean success = false;
+    try {
+      success = elderlyService.add(elderlyInfo);
+    } catch (Exception e) {
+      log.error("Failed to add elderly info", e);
+      redirectAttributes.addFlashAttribute("error", "系统错误，请稍后重试：" + e.getMessage());
+      return "redirect:/user/family/elderly/add";
+    }
     if (success) {
       redirectAttributes.addFlashAttribute("success", "关爱人员添加成功，请等待管理员审核");
     } else {
       redirectAttributes.addFlashAttribute("error", "添加失败，身份证号可能已存在");
+      return "redirect:/user/family/elderly/add";
     }
 
     return "redirect:/user/family/elderly/list";

@@ -18,6 +18,14 @@ public class XssFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
+        String contentType = httpRequest.getContentType();
+        
+        // 跳过文件上传请求，防止流被重复读取或破坏
+        if (contentType != null && contentType.contains("multipart/form-data")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         XssHttpServletRequestWrapper wrappedRequest = new XssHttpServletRequestWrapper(httpRequest);
         chain.doFilter(wrappedRequest, response);
     }

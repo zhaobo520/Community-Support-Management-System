@@ -90,8 +90,26 @@
             color: white;
         }
         td.available::after {
-            content: '';
-            font-size: 24px;
+            content: '✓';
+            font-size: 20px;
+            display: block;
+        }
+        td.busy {
+            background: #333;
+            color: white;
+        }
+        td.busy::after {
+            content: '✕';
+            font-size: 20px;
+            display: block;
+        }
+        td.standby {
+            background: #388E3C;
+            color: white;
+        }
+        td.standby::after {
+            content: '◎';
+            font-size: 20px;
             display: block;
         }
         .legend {
@@ -114,7 +132,13 @@
             border-radius: 3px;
         }
         .legend-box.available {
-            background: #ff8a95;
+            background: #D32F2F;
+        }
+        .legend-box.busy {
+            background: #333;
+        }
+        .legend-box.standby {
+            background: #388E3C;
         }
         .legend-box.unavailable {
             background: #fafafa;
@@ -126,15 +150,16 @@
             top: 20px;
             right: 20px;
             background: white;
-            border-radius: 12px;
+            border-radius: 4px;
             padding: 15px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             z-index: 1000;
             max-width: 380px;
+            border: 2px solid #1976D2;
         }
         .summary-widget h3 {
             font-size: 14px;
-            color: #f5576c;
+            color: #1976D2;
             margin-bottom: 10px;
             font-weight: bold;
         }
@@ -145,18 +170,18 @@
             font-size: 10px;
         }
         .summary-grid .header {
-            background: #ffe5e9;
+            background: #E3F2FD;
             padding: 5px 3px;
             text-align: center;
-            border-radius: 3px;
+            border-radius: 2px;
             font-weight: 600;
-            color: #f5576c;
+            color: #1976D2;
         }
         .summary-grid .cell {
-            background: #f8f9fa;
+            background: #FAFAFA;
             padding: 8px 3px;
             text-align: center;
-            border-radius: 3px;
+            border-radius: 2px;
             min-height: 40px;
             display: flex;
             align-items: center;
@@ -165,25 +190,33 @@
             color: #999;
         }
         .summary-grid .cell.has-volunteer {
-            background: #ff8a95;
+            background: #D32F2F;
             color: white;
             font-weight: 600;
             cursor: pointer;
             position: relative;
         }
-        .summary-grid .cell.has-volunteer:hover::after {
+        .summary-grid .cell.has-standby {
+            background: #FFA000;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+        }
+        .summary-grid .cell.has-volunteer:hover::after,
+        .summary-grid .cell.has-standby:hover::after {
             content: attr(data-volunteers);
             position: absolute;
             top: -5px;
             right: 105%;
-            background: #333;
+            background: #1976D2;
             color: white;
             padding: 6px 10px;
-            border-radius: 5px;
+            border-radius: 2px;
             white-space: nowrap;
             font-size: 10px;
             z-index: 1001;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
     </style>
 </head>
@@ -204,47 +237,50 @@
         <div class="header">上午</div>
         <c:forEach var="day" begin="1" end="7">
             <c:set var="key" value="${day}_MORNING"/>
+            <c:set var="entry" value="${volunteerSummary[key]}"/>
             <c:choose>
-                <c:when test="${not empty volunteerSummary[key]}">
-                    <c:set var="names" value="${String.join(', ', volunteerSummary[key])}"/>
-                    <div class="cell has-volunteer" data-volunteers="${names}">
-                        ${volunteerSummary[key].size()}人
-                    </div>
+                <c:when test="${entry.status == 'available'}">
+                    <div class="cell has-volunteer" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
+                </c:when>
+                <c:when test="${entry.status == 'standby'}">
+                    <div class="cell has-standby" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
                 </c:when>
                 <c:otherwise>
-                    <div class="cell">-</div>
+                    <div class="cell" data-summary-key="${key}">-</div>
                 </c:otherwise>
             </c:choose>
         </c:forEach>
-        
+
         <div class="header">下午</div>
         <c:forEach var="day" begin="1" end="7">
             <c:set var="key" value="${day}_AFTERNOON"/>
+            <c:set var="entry" value="${volunteerSummary[key]}"/>
             <c:choose>
-                <c:when test="${not empty volunteerSummary[key]}">
-                    <c:set var="names" value="${String.join(', ', volunteerSummary[key])}"/>
-                    <div class="cell has-volunteer" data-volunteers="${names}">
-                        ${volunteerSummary[key].size()}人
-                    </div>
+                <c:when test="${entry.status == 'available'}">
+                    <div class="cell has-volunteer" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
+                </c:when>
+                <c:when test="${entry.status == 'standby'}">
+                    <div class="cell has-standby" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
                 </c:when>
                 <c:otherwise>
-                    <div class="cell">-</div>
+                    <div class="cell" data-summary-key="${key}">-</div>
                 </c:otherwise>
             </c:choose>
         </c:forEach>
-        
+
         <div class="header">晚上</div>
         <c:forEach var="day" begin="1" end="7">
             <c:set var="key" value="${day}_EVENING"/>
+            <c:set var="entry" value="${volunteerSummary[key]}"/>
             <c:choose>
-                <c:when test="${not empty volunteerSummary[key]}">
-                    <c:set var="names" value="${String.join(', ', volunteerSummary[key])}"/>
-                    <div class="cell has-volunteer" data-volunteers="${names}">
-                        ${volunteerSummary[key].size()}人
-                    </div>
+                <c:when test="${entry.status == 'available'}">
+                    <div class="cell has-volunteer" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
+                </c:when>
+                <c:when test="${entry.status == 'standby'}">
+                    <div class="cell has-standby" data-summary-key="${key}" data-volunteers="${entry.names}">${entry.count}人</div>
                 </c:when>
                 <c:otherwise>
-                    <div class="cell">-</div>
+                    <div class="cell" data-summary-key="${key}">-</div>
                 </c:otherwise>
             </c:choose>
         </c:forEach>
@@ -290,21 +326,24 @@
                     <th>上午</th>
                     <c:forEach var="day" begin="1" end="7">
                         <c:set var="cellKey" value="${day}_MORNING"/>
-                        <td class="${scheduleMap[cellKey] ? 'available' : ''}"></td>
+                        <c:set var="cellStatus" value="${scheduleMap[cellKey]}"/>
+                        <td class="${cellStatus == 'available' ? 'available' : (cellStatus == 'standby' ? 'standby' : '')}"></td>
                     </c:forEach>
                 </tr>
                 <tr>
                     <th>下午</th>
                     <c:forEach var="day" begin="1" end="7">
                         <c:set var="cellKey" value="${day}_AFTERNOON"/>
-                        <td class="${scheduleMap[cellKey] ? 'available' : ''}"></td>
+                        <c:set var="cellStatus" value="${scheduleMap[cellKey]}"/>
+                        <td class="${cellStatus == 'available' ? 'available' : (cellStatus == 'standby' ? 'standby' : '')}"></td>
                     </c:forEach>
                 </tr>
                 <tr>
                     <th>晚上</th>
                     <c:forEach var="day" begin="1" end="7">
                         <c:set var="cellKey" value="${day}_EVENING"/>
-                        <td class="${scheduleMap[cellKey] ? 'available' : ''}"></td>
+                        <c:set var="cellStatus" value="${scheduleMap[cellKey]}"/>
+                        <td class="${cellStatus == 'available' ? 'available' : (cellStatus == 'standby' ? 'standby' : '')}"></td>
                     </c:forEach>
                 </tr>
             </tbody>
@@ -314,11 +353,15 @@
     <div class="legend">
         <span class="legend-item">
             <span class="legend-box available"></span>
-            可服务时段
+            可服务
+        </span>
+        <span class="legend-item">
+            <span class="legend-box standby"></span>
+            备班
         </span>
         <span class="legend-item">
             <span class="legend-box unavailable"></span>
-            不可服务
+            未设置
         </span>
     </div>
 </div>
@@ -328,6 +371,34 @@
         var volunteerId = document.getElementById('volunteerSelect').value;
         window.location.href = '${pageContext.request.contextPath}/family/schedule/view?volunteerId=' + volunteerId;
     }
+
+    // 悬浮窗 10 秒轮询，跨端近实时同步当前值班情况
+    function refreshSummary() {
+        fetch('${pageContext.request.contextPath}/api/schedule/summary', { credentials: 'same-origin' })
+            .then(r => r.ok ? r.json() : null)
+            .then(data => {
+                if (!data) return;
+                document.querySelectorAll('[data-summary-key]').forEach(cell => {
+                    const key = cell.getAttribute('data-summary-key');
+                    const entry = data[key];
+                    cell.classList.remove('has-volunteer', 'has-standby');
+                    if (entry && entry.status === 'available') {
+                        cell.classList.add('has-volunteer');
+                        cell.textContent = entry.count + '人';
+                        cell.setAttribute('data-volunteers', entry.names);
+                    } else if (entry && entry.status === 'standby') {
+                        cell.classList.add('has-standby');
+                        cell.textContent = entry.count + '人';
+                        cell.setAttribute('data-volunteers', entry.names);
+                    } else {
+                        cell.textContent = '-';
+                        cell.removeAttribute('data-volunteers');
+                    }
+                });
+            })
+            .catch(() => {});
+    }
+    setInterval(refreshSummary, 10000);
 </script>
 </body>
 </html>

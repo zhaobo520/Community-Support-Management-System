@@ -50,20 +50,23 @@ public class FamilyScheduleController {
             // 获取选中志愿者的排班
             List<VolunteerSchedule> schedules = scheduleService.getSchedule(volunteerId);
             
-            // 只显示已确认的可用时段
-            Map<String, Boolean> scheduleMap = new HashMap<>();
+            // 只显示已确认的有效时段（志愿者自己设置 或 管理员指派已同意）
+            Map<String, String> scheduleMap = new HashMap<>();
             for (VolunteerSchedule schedule : schedules) {
-                // 只显示有效可用的时段：
-                // 1. 志愿者自己设置的已确认
-                // 2. 管理员指派且志愿者已同意
-                boolean isValid = schedule.getIsAvailable() == 1 && 
-                                 ("VOLUNTEER".equals(schedule.getAssignSource()) ||
-                                  ("ADMIN".equals(schedule.getAssignSource()) && 
-                                   "CONFIRMED".equals(schedule.getConfirmStatus())));
-                
-                if (isValid) {
+                boolean isConfirmed = "VOLUNTEER".equals(schedule.getAssignSource())
+                        || ("ADMIN".equals(schedule.getAssignSource())
+                            && "CONFIRMED".equals(schedule.getConfirmStatus()));
+
+                if (isConfirmed && schedule.getIsAvailable() >= 1) {
                     String key = schedule.getDayOfWeek() + "_" + schedule.getTimeSlot();
-                    scheduleMap.put(key, true);
+                    // isAvailable: 1=可服务, 2=备班, 0=忙碌
+                    if (schedule.getIsAvailable() == 2) {
+                        scheduleMap.put(key, "standby");
+                    } else if (schedule.getIsAvailable() == 0) {
+                        scheduleMap.put(key, "busy");
+                    } else {
+                        scheduleMap.put(key, "available");
+                    }
                 }
             }
             
@@ -71,7 +74,7 @@ public class FamilyScheduleController {
         }
         
         // 添加所有志愿者的汇总数据（用于右上角小表格）
-        Map<String, List<String>> volunteerSummary = scheduleService.getAvailableVolunteersSummary();
+        Map<String, Map<String, Object>> volunteerSummary = scheduleService.getAvailableVolunteersSummary();
         model.addAttribute("volunteerSummary", volunteerSummary);
 
         return "family/volunteer_schedule_view";

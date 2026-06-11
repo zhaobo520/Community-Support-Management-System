@@ -5,202 +5,45 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>编辑关爱人员 - 家属服务中心</title>
+  <title>编辑关爱人员 - 家属协同平台</title>
   <link href="${pageContext.request.contextPath}/css/gov-theme.css" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #FAF5F0; min-height: 100vh; padding-bottom: 40px; }
-    .gov-header {
-      background: linear-gradient(90deg, #B71C1C 0%, #D32F2F 100%);
-      height: 60px;
-      padding: 0 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-    .gov-header h1 {
-      color: white;
-      font-size: 20px;
-      font-weight: 600;
-    }
-    .gov-header .actions {
-      display: flex;
-      gap: 20px;
-    }
-    .gov-header .actions a {
-      color: white;
-      text-decoration: none;
-      font-size: 14px;
-      padding: 6px 16px;
-      border-radius: 4px;
-      transition: background 0.3s;
-    }
-    .gov-header .actions a:hover {
-      background: rgba(255,255,255,0.2);
-    }
-    .container {
-      max-width: 800px;
-      margin: 40px auto;
-      background: #fff;
-      border-radius: 8px;
-      padding: 40px 50px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    .header {
-      text-align: center;
-      margin-bottom: 32px;
-      padding-bottom: 20px;
-      border-bottom: 3px solid #D32F2F;
-    }
-    .header h1 {
-      font-size: 28px;
-      color: #1e293b;
-      margin-bottom: 8px;
-    }
-    .header p {
-      color: #64748b;
-      font-size: 14px;
-    }
-    .notice {
-      background: rgba(59,130,246,0.1);
-      border-left: 4px solid #3b82f6;
-      padding: 16px;
-      border-radius: 4px;
-      margin-bottom: 24px;
-      font-size: 14px;
-      color: #1e40af;
-    }
-    .notice.warning {
-      background: rgba(245,158,11,0.1);
-      border-left-color: #f59e0b;
-      color: #92400e;
-    }
-    .form-section {
-      margin-bottom: 32px;
-    }
-    .section-title {
-      font-size: 18px;
-      color: #1e293b;
-      margin-bottom: 16px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid #e2e8f0;
-      font-weight: 600;
-    }
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-    .form-group {
-      margin-bottom: 20px;
-    }
-    .form-group.full {
-      grid-column: 1 / -1;
-    }
-    .form-group label {
-      display: block;
-      font-size: 14px;
-      color: #475569;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-    .form-group label .required {
-      color: #D32F2F;
-      margin-left: 4px;
-    }
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      font-size: 14px;
-      transition: all 0.3s;
-    }
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: #D32F2F;
-      box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
-    }
-    .form-group textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-    .radio-group {
-      display: flex;
-      gap: 20px;
-    }
-    .radio-group label {
-      display: flex;
-      align-items: center;
-      font-weight: normal;
-      cursor: pointer;
-    }
-    .radio-group input[type="radio"] {
-      width: auto;
-      margin-right: 8px;
-    }
-    .error {
-      background: rgba(239,68,68,0.1);
-      border-left: 4px solid #ef4444;
-      padding: 12px 16px;
-      border-radius: 4px;
-      margin-bottom: 20px;
-      color: #dc2626;
-      font-size: 14px;
-    }
-    .current-photo {
-      margin-bottom: 16px;
-    }
-    .current-photo img {
-      max-width: 150px;
-      max-height: 150px;
-      border-radius: 8px;
-      border: 2px solid #e2e8f0;
-    }
-    .current-photo p {
-      font-size: 13px;
-      color: #64748b;
-      margin-top: 8px;
-    }
-    .form-actions {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      margin-top: 32px;
-    }
-    .btn {
-      padding: 12px 36px;
-      border: 2px solid;
-      border-radius: 6px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .btn-submit {
-      background: #D32F2F;
-      color: white;
-      border-color: #D32F2F;
-    }
-    .btn-submit:hover {
-      background: #B71C1C;
-      border-color: #B71C1C;
-    }
-    .btn-cancel {
-      background: white;
-      color: #64748b;
-      border-color: #e2e8f0;
-    }
-    .btn-cancel:hover {
-      background: #f8fafc;
-      border-color: #cbd5e1;
-    }
+    .gov-header { background: linear-gradient(90deg, #B71C1C 0%, #D32F2F 100%); height: 60px; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    .gov-header h1 { color: white; font-size: 20px; font-weight: 600; }
+    .gov-header .actions { display: flex; gap: 20px; }
+    .gov-header .actions a { color: white; text-decoration: none; font-size: 14px; padding: 6px 16px; border-radius: 4px; transition: background 0.3s; }
+    .gov-header .actions a:hover { background: rgba(255,255,255,0.2); }
+    .container { max-width: 800px; margin: 40px auto; background: #fff; border-radius: 8px; padding: 40px 50px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .header { text-align: center; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 3px solid #D32F2F; }
+    .header h1 { font-size: 28px; color: #1e293b; margin-bottom: 8px; }
+    .header p { color: #64748b; font-size: 14px; }
+    .notice { background: rgba(59,130,246,0.1); border-left: 4px solid #3b82f6; padding: 16px; border-radius: 4px; margin-bottom: 24px; font-size: 14px; color: #1e40af; }
+    .notice.warning { background: rgba(245,158,11,0.1); border-left-color: #f59e0b; color: #92400e; }
+    .form-section { margin-bottom: 32px; }
+    .section-title { font-size: 18px; color: #1e293b; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; font-weight: 600; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { display: block; font-size: 14px; color: #475569; margin-bottom: 8px; font-weight: 600; }
+    .form-group label .required { color: #D32F2F; margin-left: 4px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; transition: all 0.3s; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #D32F2F; box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1); }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .radio-group { display: flex; gap: 20px; }
+    .radio-group label { display: flex; align-items: center; font-weight: normal; cursor: pointer; }
+    .radio-group input[type="radio"] { width: auto; margin-right: 8px; }
+    .error { background: rgba(239,68,68,0.1); border-left: 4px solid #ef4444; padding: 12px 16px; border-radius: 4px; margin-bottom: 20px; color: #dc2626; font-size: 14px; }
+    .current-photo { margin-bottom: 16px; }
+    .current-photo img { max-width: 150px; max-height: 150px; border-radius: 8px; border: 2px solid #e2e8f0; object-fit:cover; }
+    .current-photo p { font-size: 13px; color: #64748b; margin-top: 8px; }
+    .form-actions { display: flex; gap: 12px; justify-content: center; margin-top: 32px; }
+    .btn { padding: 12px 36px; border: 2px solid; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+    .btn-submit { background: #D32F2F; color: white; border-color: #D32F2F; }
+    .btn-submit:hover { background: #B71C1C; border-color: #B71C1C; }
+    .btn-cancel { background: white; color: #64748b; border-color: #e2e8f0; }
+    .btn-cancel:hover { background: #f8fafc; border-color: #cbd5e1; }
     @media (max-width: 768px) {
       .gov-header { padding: 0 16px; }
       .container { margin: 20px 16px; padding: 24px 20px; }
@@ -220,7 +63,7 @@
 <div class="container">
   <div class="header">
     <h1>编辑关爱人员信息</h1>
-    <p>修改关爱对象的基本信息和特殊需求</p>
+    <p>修改关爱对象的基础信息和特殊需求</p>
   </div>
 
   <c:if test="${elderlyInfo.auditStatus == 'REJECTED'}">
@@ -241,7 +84,7 @@
     <input type="hidden" name="id" value="${elderlyInfo.id}"/>
 
     <div class="form-section">
-      <div class="section-title">基本信息</div>
+      <div class="section-title">基础信息</div>
       <div class="form-row">
         <div class="form-group">
           <label>姓名<span class="required">*</span></label>
@@ -284,22 +127,12 @@
       </div>
     </div>
 
-    <!-- Photo Upload Section -->
     <div class="form-section">
       <div class="section-title">关爱对象照片</div>
-      <c:if test="${not empty elderlyInfo.photoUrl}">
-        <div class="current-photo">
-          <c:choose>
-            <c:when test="${fn:startsWith(elderlyInfo.photoUrl, pageContext.request.contextPath)}">
-              <img src="${elderlyInfo.photoUrl}" alt="当前照片"/>
-            </c:when>
-            <c:otherwise>
-              <img src="${pageContext.request.contextPath}${elderlyInfo.photoUrl}" alt="当前照片"/>
-            </c:otherwise>
-          </c:choose>
-          <p>当前照片（上传新照片将替换）</p>
-        </div>
-      </c:if>
+      <div class="current-photo" id="currentPhotoContainer">
+        <img id="currentPhotoPreview" src="${not empty elderlyInfo.photoUrl ? pageContext.request.contextPath.concat(elderlyInfo.photoUrl) : ''}" alt="当前照片" style="display:${not empty elderlyInfo.photoUrl ? 'block' : 'none'};"/>
+        <p id="currentPhotoHint" style="display:${not empty elderlyInfo.photoUrl ? 'block' : 'none'};">当前照片（上传新照片将替换）</p>
+      </div>
       <%@ include file="/WEB-INF/views/common/file_upload_component.jsp" %>
       <input type="hidden" id="uploadType" value="elderly-photo">
       <input type="hidden" name="photoUrl" id="photoUrl" value="${elderlyInfo.photoUrl}">
@@ -383,21 +216,16 @@
 
 <script>
 function beforeSubmit() {
-  // Get uploaded photo URL and set to hidden field
   if (typeof getUploadedFileUrls === 'function') {
     var photoUrls = getUploadedFileUrls();
-    console.log('Original photoUrls:', photoUrls);
     if (photoUrls) {
-      // 移除contextPath前缀，只保存相对路径
       var contextPath = '${pageContext.request.contextPath}';
       if (photoUrls.startsWith(contextPath)) {
         photoUrls = photoUrls.substring(contextPath.length);
       }
-      console.log('Processed photoUrls:', photoUrls);
       document.getElementById('photoUrl').value = photoUrls;
     }
   }
-  console.log('Final photoUrl value:', document.getElementById('photoUrl').value);
   return true;
 }
 </script>

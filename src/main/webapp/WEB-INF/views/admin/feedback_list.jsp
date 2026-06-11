@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -151,8 +151,8 @@
             font-size: 12px;
             font-weight: 600;
         }
-        .type-rating { background: #E8F5E9; color: #2E7D32; }
-        .type-suggestion { background: #E3F2FD; color: #1565C0; }
+        .type-rating { background: #FBE9E7; color: #B71C1C; }
+        .type-suggestion { background: #FBE9E7; color: #B71C1C; }
         .type-complaint { background: #FFF3E0; color: #E65100; }
         .feedback-status {
             padding: 5px 12px;
@@ -161,8 +161,8 @@
             font-weight: 600;
         }
         .status-pending { background: #FFF8E1; color: #F57C00; }
-        .status-processing { background: #E3F2FD; color: #1565C0; }
-        .status-resolved { background: #E8F5E9; color: #2E7D32; }
+        .status-processing { background: #FBE9E7; color: #B71C1C; }
+        .status-resolved { background: #FBE9E7; color: #B71C1C; }
         .feedback-title {
             font-size: 16px;
             font-weight: 600;
@@ -208,11 +208,11 @@
             box-shadow: 0 4px 12px rgba(211,47,47,0.3);
         }
         .btn-success {
-            background: #4CAF50;
+            background: #D32F2F;
         }
         .btn-success:hover {
-            background: #388E3C;
-            box-shadow: 0 4px 12px rgba(76,175,80,0.3);
+            background: #B71C1C;
+            box-shadow: 0 4px 12px rgba(211, 47, 47,0.3);
         }
         .empty-state {
             text-align: center;
@@ -370,3 +370,4 @@ function updateStatus(id, status) {
 </script>
 </body>
 </html>
+

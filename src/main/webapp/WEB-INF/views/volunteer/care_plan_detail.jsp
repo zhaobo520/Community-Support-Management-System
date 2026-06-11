@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -73,7 +73,7 @@
             font-size: 14px;
         }
         .btn-back:hover {
-            background: #f5f5f5;
+            background: #FAF5F0;
         }
         .status-badge {
             display: inline-block;
@@ -224,7 +224,7 @@
             width: 50px;
             height: 50px;
             border-radius: 8px;
-            background: linear-gradient(135deg, #1976D2, #1565C0);
+            background: linear-gradient(135deg, #B71C1C, #B71C1C);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -467,3 +467,4 @@
 
 </body>
 </html>
+

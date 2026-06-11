@@ -302,12 +302,20 @@
           <c:if test="${not empty task.demand && not empty task.demand.attachmentUrl}">
             <span class="gov-badge">有图</span>
           </c:if>
+          <c:if test="${not empty task.demand && not empty task.demand.intendedVolunteer}">
+            <span class="gov-badge" style="background:#FFF8E1;color:#F57C00;border:1px solid #FFD54F;" title="家属在发布需求时指定的意向志愿者">★ 意向：${task.demand.intendedVolunteer.fullName}</span>
+          </c:if>
         </div>
 
         <div class="task-details">
           <div>地址：${task.address}</div>
           <div>时间：<fmt:formatDate value="${task.scheduledDate}" pattern="MM月dd日"/> ${task.scheduledTime}</div>
           <div>电话：${task.contactPhone}</div>
+          <c:if test="${not empty task.demand && not empty task.demand.intendedVolunteer}">
+            <div style="margin-top:6px;color:#F57C00;font-weight:600;">家属意向志愿者：${task.demand.intendedVolunteer.fullName}
+              <c:if test="${not empty task.demand.intendedVolunteer.phone}"> · ${task.demand.intendedVolunteer.phone}</c:if>
+            </div>
+          </c:if>
           <c:if test="${not empty task.description}">
             <div style="margin-top:8px;color:#666;border-top:1px dashed #ddd;padding-top:8px;">${task.description}</div>
           </c:if>

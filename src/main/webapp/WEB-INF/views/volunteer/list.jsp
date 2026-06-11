@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -83,7 +83,7 @@
       margin-bottom: 8px;
     }
     .stat-card.pending .stat-number { color: #f59e0b; }
-    .stat-card.approved .stat-number { color: #4CAF50; }
+    .stat-card.approved .stat-number { color: #D32F2F; }
     .stat-card.rejected .stat-number { color: #D32F2F; }
     .stat-card.suspended .stat-number { color: #666; }
     .stat-label {
@@ -176,7 +176,7 @@
       font-weight: 600;
     }
     .status-badge.pending { background: rgba(245,158,11,0.15); color: #f59e0b; }
-    .status-badge.approved { background: rgba(76,175,80,0.15); color: #4CAF50; }
+    .status-badge.approved { background: rgba(211, 47, 47,0.15); color: #D32F2F; }
     .status-badge.rejected { background: rgba(211,47,47,0.15); color: #D32F2F; }
     .status-badge.suspended { background: rgba(102,102,102,0.15); color: #666; }
     .skills {
@@ -239,11 +239,11 @@
       color: white;
     }
     .btn-approve {
-      border-color: #4CAF50;
-      color: #4CAF50;
+      border-color: #D32F2F;
+      color: #D32F2F;
     }
     .btn-approve:hover {
-      background: #4CAF50;
+      background: #D32F2F;
       color: white;
     }
     .btn-reject {
@@ -472,3 +472,4 @@ function suspendVolunteer(id) {
 </script>
 </body>
 </html>
+

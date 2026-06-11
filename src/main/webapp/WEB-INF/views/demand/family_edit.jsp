@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -94,7 +94,7 @@
       border-radius: 4px;
       font-size: 15px;
       transition: all 0.3s;
-      font-family: 'Nunito', sans-serif;
+      font-family: 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
     .form-group input:focus,
     .form-group select:focus,
@@ -296,8 +296,23 @@
 
       <div class="form-group">
         <label>所需技能</label>
-        <input type="text" name="requiredSkill" value="${demand.requiredSkill}" 
+        <input type="text" name="requiredSkill" value="${demand.requiredSkill}"
                placeholder="例如：护理、烹饪、维修等"/>
+      </div>
+
+      <div class="form-group">
+        <label>意向志愿者（可选）</label>
+        <select name="intendedVolunteerId">
+          <option value="">不指定，由志愿者大厅自由认领</option>
+          <c:forEach items="${volunteerList}" var="vol">
+            <option value="${vol.id}" ${demand.intendedVolunteerId == vol.id ? 'selected' : ''}>
+              ${vol.fullName}
+              <c:if test="${not empty vol.phone}"> - ${vol.phone}</c:if>
+              <c:if test="${not empty vol.skills}"> - ${vol.skills}</c:if>
+            </option>
+          </c:forEach>
+        </select>
+        <div style="color:#666;font-size:13px;margin-top:6px;">仅作为发布需求时的意向人选，最终是否由该志愿者执行需经审核流程</div>
       </div>
 
       <!-- 需求说明图片 -->
@@ -422,10 +437,12 @@ function uploadImage(input) {
     .then(response => response.json())
     .then(data => {
       if (data.code === 200) {
-        var imageUrl = data.data.url;
+        var rawUrl = data.data.url;
+        var contextPath = '${pageContext.request.contextPath}';
+        var imageUrl = rawUrl.indexOf(contextPath) === 0 ? rawUrl : contextPath + rawUrl;
         
         // 保存URL到隐藏字段（不包含contextPath的相对路径）
-        var relativeUrl = imageUrl.replace('${pageContext.request.contextPath}', '');
+        var relativeUrl = rawUrl;
         document.getElementById('attachmentUrl').value = relativeUrl;
         
         // 显示预览（imageUrl已经包含contextPath，直接使用）
@@ -456,3 +473,5 @@ function removeImage() {
 </script>
 </body>
 </html>
+
+

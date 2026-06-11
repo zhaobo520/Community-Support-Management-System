@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -106,7 +106,7 @@
       object-fit: cover;
     }
     .photo-section {
-      background: #FAFAFA;
+      background: #FAF5F0;
       padding: 24px;
       border-radius: 4px;
       border: 1px solid #E0E0E0;
@@ -139,7 +139,7 @@
       font-size: 14px;
       color: #666;
       padding: 4px 12px;
-      background: #F5F5F5;
+      background: #FAF5F0;
       border-radius: 2px;
     }
     .tags {
@@ -157,7 +157,7 @@
     .tag.urgent { background: rgba(183,28,28,0.1); color: #B71C1C; border-color: rgba(183,28,28,0.3); }
     .tag.high { background: rgba(211,47,47,0.1); color: #D32F2F; border-color: rgba(211,47,47,0.3); }
     .tag.medium { background: rgba(255,82,82,0.1); color: #FF5252; border-color: rgba(255,82,82,0.3); }
-    .tag.low { background: rgba(76,175,80,0.1); color: #4CAF50; border-color: rgba(76,175,80,0.3); }
+    .tag.low { background: rgba(211, 47, 47,0.1); color: #D32F2F; border-color: rgba(211, 47, 47,0.3); }
     .tag.alone { background: rgba(211,47,47,0.1); color: #D32F2F; border-color: rgba(211,47,47,0.3); }
     .info-sections {
       display: grid;
@@ -165,7 +165,7 @@
       gap: 24px;
     }
     .info-section {
-      background: #FAFAFA;
+      background: #FAF5F0;
       padding: 24px;
       border-radius: 4px;
       border: 1px solid #E0E0E0;
@@ -232,11 +232,11 @@
     }
     .btn-edit {
       background: white;
-      color: #4CAF50;
-      border-color: #4CAF50;
+      color: #D32F2F;
+      border-color: #D32F2F;
     }
     .btn-edit:hover {
-      background: #4CAF50;
+      background: #D32F2F;
       color: white;
     }
     .btn-back {
@@ -245,7 +245,7 @@
       border-color: #E0E0E0;
     }
     .btn-back:hover {
-      background: #F5F5F5;
+      background: #FAF5F0;
     }
   </style>
 </head>
@@ -266,7 +266,7 @@
           <c:when test="${not empty elderlyInfo.photoUrl}">
             <c:choose>
               <c:when test="${fn:startsWith(elderlyInfo.photoUrl, pageContext.request.contextPath)}">
-                <img src="${elderlyInfo.photoUrl}" alt="${elderlyInfo.name}">
+                <img src="${pageContext.request.contextPath}${elderlyInfo.photoUrl}" alt="${elderlyInfo.name}">
               </c:when>
               <c:otherwise>
                 <img src="${pageContext.request.contextPath}${elderlyInfo.photoUrl}" alt="${elderlyInfo.name}">
@@ -304,7 +304,7 @@
           <c:when test="${not empty elderlyInfo.photoUrl}">
             <c:choose>
               <c:when test="${fn:startsWith(elderlyInfo.photoUrl, pageContext.request.contextPath)}">
-                <img src="${elderlyInfo.photoUrl}" alt="${elderlyInfo.name}的照片" class="elderly-photo">
+                <img src="${pageContext.request.contextPath}${elderlyInfo.photoUrl}" alt="${elderlyInfo.name}的照片" class="elderly-photo">
               </c:when>
               <c:otherwise>
                 <img src="${pageContext.request.contextPath}${elderlyInfo.photoUrl}" alt="${elderlyInfo.name}的照片" class="elderly-photo">
@@ -408,3 +408,5 @@
 </div>
 </body>
 </html>
+
+
